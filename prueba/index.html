@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1A2B4A">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23C0392B'/><path d='M16 6 C11 9 9 14 12 18 C15 22 17 22 19.5 20 C22 18 21 14 16 6Z' fill='white' opacity='.9'/></svg>">
+<title>ANEMIMETRIC® — Motor Clínico Hematológico | YerayFH</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════════════════════════
+   ANEMIMETRIC® — YerayFH Ecosystem v2.0
+   ════════════════════════════════════════ */
+:root {
+  /* Brand */
+  --crimson:   #C0392B; --crimson-d: #922B21; --crimson-l: #F9EBEA;
+  --navy:      #1A2B4A; --navy-m:    #2C3E6B;
+  --slate:     #4A5568; --slate-l:   #718096;
+  --fog:       #F7F8FA; --fog-d:     #EDF0F4;
+  --white:     #FFFFFF; --border:    #E2E8F0; --border-d: #CBD5E0;
+  --gold:      #D4A017; --gold-l:    #FEF9EC;
+  --teal:      #0B6B6B; --teal-l:    #E6F4F4; --teal-m:   #0D8080;
+  --success:   #276749; --success-l: #E6F4ED;
+  --warn:      #92400E; --warn-l:    #FEF3C7;
+  --danger:    #9B1C1C; --danger-l:  #FEF2F2;
+  --violet:    #5B21B6; --violet-l:  #EDE9FE;
+  /* YerayFH ecosystem tokens */
+  --header-bg: #1A2B4A;
+  --brd:       rgba(255,255,255,.12);
+  --txt:       #FFFFFF;
+  /* Layout */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.05);
+  --r:14px; --r-sm:8px; --r-lg:20px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--fog);color:var(--navy);min-height:100vh;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── BACKGROUND ── */
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 800px 600px at 15% 20%,rgba(192,57,43,.045) 0%,transparent 70%),
+  radial-gradient(ellipse 600px 800px at 85% 70%,rgba(11,107,107,.04) 0%,transparent 70%),
+  radial-gradient(ellipse 400px 400px at 50% 50%,rgba(26,43,74,.025) 0%,transparent 70%);
+  pointer-events:none;z-index:0}
+
+/* ════════════════════════════════
+   MODAL DISCLAIMER — BLOQUEO TOTAL
+   ════════════════════════════════ */
+#disclaimer-modal{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;
+  background:rgba(15,23,42,.82);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  animation:modalIn .4s ease both
+}
+#disclaimer-modal.hidden{display:none}
+
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+
+.modal-card{
+  background:var(--white);border-radius:24px;
+  max-width:520px;width:100%;
+  padding:36px 32px 28px;
+  box-shadow:0 24px 80px rgba(0,0,0,.28),0 8px 24px rgba(0,0,0,.14);
+  border:1px solid var(--border);
+}
+.modal-logo-row{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.modal-badge{
+  width:48px;height:48px;background:linear-gradient(135deg,var(--crimson),var(--crimson-d));
+  border-radius:14px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px rgba(192,57,43,.35);flex-shrink:0
+}
+.modal-badge svg{width:26px;height:26px}
+.modal-brand{display:flex;flex-direction:column;gap:1px}
+.modal-brand-name{font-size:22px;font-weight:800;color:#2E86C1;letter-spacing:-.3px;line-height:1}
+.modal-brand-sub{font-size:11px;color:var(--slate-l);font-weight:300}
+.modal-title{font-family:'DM Serif Display',serif;font-size:19px;color:var(--navy);margin-bottom:12px;line-height:1.3}
+.modal-body{font-size:13.5px;color:var(--slate);line-height:1.75;margin-bottom:20px}
+.modal-body strong{color:var(--navy);font-weight:600}
+.modal-body ul{padding-left:18px;margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.modal-body li{list-style:disc}
+.modal-checkbox-row{
+  display:flex;align-items:flex-start;gap:10px;
+  background:var(--fog);border-radius:var(--r-sm);
+  padding:12px 14px;margin-bottom:16px;
+  border:1.5px solid var(--border)
+}
+.modal-checkbox-row input[type=checkbox]{
+  width:18px;height:18px;margin-top:2px;accent-color:var(--crimson);flex-shrink:0;cursor:pointer
+}
+.modal-checkbox-row label{font-size:12.5px;color:var(--slate);line-height:1.5;cursor:pointer}
+.modal-btn{
+  width:100%;height:50px;
+  background:linear-gradient(135deg,var(--crimson),var(--crimson-d));
+  color:#fff;border:none;border-radius:var(--r-sm);
+  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;
+  cursor:pointer;transition:all .2s;
+  box-shadow:0 4px 14px rgba(192,57,43,.30);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  opacity:.5;pointer-events:none
+}
+.modal-btn.enabled{opacity:1;pointer-events:all}
+.modal-btn.enabled:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(192,57,43,.40)}
+.modal-footer-note{text-align:center;font-size:11px;color:var(--slate-l);margin-top:10px}
+
+/* ════════════════════════════════
+   YERAYFH UNIFIED HEADER
+   ════════════════════════════════ */
+.app-header-unified{
+  display:flex;align-items:center;gap:16px;
+  padding:12px 24px;
+  background:var(--header-bg);
+  border-bottom:1px solid var(--brd);
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 16px rgba(0,0,0,.25)
+}
+.hdr-logo-wrap{
+  width:48px;height:48px;
+  background:linear-gradient(135deg,var(--crimson),var(--crimson-d));
+  border-radius:12px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 10px rgba(192,57,43,.5);flex-shrink:0;
+  animation:pulse-icon 3s ease-in-out infinite
+}
+.hdr-logo-wrap svg{width:24px;height:24px}
+@keyframes pulse-icon{
+  0%,100%{box-shadow:0 2px 10px rgba(192,57,43,.5)}
+  50%{box-shadow:0 2px 18px rgba(192,57,43,.75)}
+}
+.hdr-text{display:flex;flex-direction:column;gap:1px;flex:1}
+.hdr-meta{font-size:10.5px;opacity:.7;color:var(--txt)}
+.hdr-meta a{color:inherit;text-decoration:none}
+.hdr-meta a:hover{text-decoration:underline}
+.hdr-dept{font-size:12px;font-weight:500;opacity:.85;color:var(--txt)}
+.hdr-app-name{font-size:22px;font-weight:800;letter-spacing:-.3px;color:#2E86C1;line-height:1}
+.hdr-guide-pills{display:flex;gap:5px;margin-top:3px;flex-wrap:wrap}
+.hdr-pill{
+  font-size:9.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  padding:2px 7px;border-radius:10px
+}
+.hp-bsh{background:rgba(192,57,43,.25);color:#FECACA}
+.hp-oms{background:rgba(11,107,107,.3);color:#99F6E4}
+.hp-kdigo{background:rgba(212,160,23,.25);color:#FDE68A}
+
+/* ════════════════════════════════
+   PAGE WRAP & LAYOUT
+   ════════════════════════════════ */
+.page-wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:24px 20px 60px}
+
+/* ─── SECTION INTRO ─── */
+.page-intro{padding:20px 0 8px;display:flex;align-items:flex-start;gap:14px}
+.page-intro-icon{
+  width:44px;height:44px;background:var(--crimson-l);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.page-intro-text h2{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;color:var(--navy);letter-spacing:-.2px}
+.page-intro-text p{font-size:13px;color:var(--slate-l);margin-top:2px;font-weight:300}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── CARDS ─── */
+.card{
+  background:var(--white);border-radius:var(--r-lg);
+  border:1px solid var(--border);box-shadow:var(--shadow-md);
+  padding:24px 28px;margin-bottom:14px;animation:fadeUp .4s ease both
+}
+.card-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.card-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ci-red{background:var(--crimson-l)} .ci-teal{background:var(--teal-l)}
+.ci-gold{background:var(--gold-l)} .ci-navy{background:rgba(26,43,74,.08)}
+.ci-violet{background:var(--violet-l)}
+.card-title{font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;color:var(--navy);letter-spacing:-.1px}
+.card-subtitle{font-size:11.5px;color:var(--slate-l);margin-top:1px;font-weight:300}
+
+/* ─── FORM GRIDS ─── */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.form-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+/* ─── FIELDS ─── */
+.field{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:12px;font-weight:500;color:var(--slate);display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}
+.field-unit{font-size:10.5px;color:var(--slate-l);font-weight:300;font-style:italic}
+.optional-tag{font-size:9.5px;font-weight:500;background:var(--fog-d);color:var(--slate-l);padding:1px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em}
+.calc-tag{font-size:9.5px;font-weight:600;background:var(--teal-l);color:var(--teal);padding:1px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em}
+.new-tag{font-size:9.5px;font-weight:600;background:var(--violet-l);color:var(--violet);padding:1px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em}
+
+/* Touch-friendly inputs — min 44px per iOS HIG */
+.field-input{
+  height:44px;padding:0 13px;
+  border-radius:var(--r-sm);border:1.5px solid var(--border);
+  background:var(--fog);color:var(--navy);
+  font-family:'DM Sans',sans-serif;font-size:15px;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+  outline:none;-webkit-appearance:none;appearance:none;
+  width:100%
+}
+.field-input:focus{border-color:var(--crimson);background:var(--white);box-shadow:0 0 0 3px rgba(192,57,43,.10)}
+.field-input::placeholder{color:#B0B9C8;font-size:13px}
+.field-input.has-value{border-color:var(--border-d);background:var(--white)}
+
+/* ─── SEX / BOOL TOGGLES ─── */
+.sex-toggle,.bool-toggle{display:flex;gap:8px}
+.sex-btn,.bool-btn{
+  flex:1;min-height:44px;border-radius:var(--r-sm);
+  border:1.5px solid var(--border);background:var(--fog);color:var(--slate-l);
+  font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;
+  gap:6px;font-weight:400;-webkit-tap-highlight-color:transparent
+}
+.sex-btn:hover,.bool-btn:hover{border-color:var(--border-d);color:var(--slate)}
+.sex-btn.active,.bool-btn.active{background:var(--crimson-l);border-color:var(--crimson);color:var(--crimson-d);font-weight:500}
+.bool-btn.active-yes{background:var(--crimson-l);border-color:var(--crimson);color:var(--crimson-d);font-weight:500}
+.bool-btn.active-no{background:var(--success-l);border-color:var(--success);color:var(--success);font-weight:500}
+
+/* ─── PREGNANCY TRIMESTER ─── */
+.trim-select-wrap{display:none;margin-top:10px;animation:fadeUp .3s ease both}
+.trim-select-wrap.visible{display:block}
+.trim-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.trim-tab{
+  flex:1;min-width:80px;min-height:38px;padding:4px 8px;
+  border-radius:var(--r-sm);border:1.5px solid var(--border);
+  background:var(--fog);color:var(--slate-l);
+  font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;
+  transition:all .2s;text-align:center;font-weight:400;
+  -webkit-tap-highlight-color:transparent
+}
+.trim-tab.active{background:var(--crimson-l);border-color:var(--crimson);color:var(--crimson-d);font-weight:600}
+
+/* ─── DIVIDER ─── */
+.divider{height:1px;background:var(--border);margin:18px 0}
+.section-label{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--slate-l);margin-bottom:12px}
+
+/* ─── COMPUTED DISPLAY ─── */
+.computed-row{
+  display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;
+  padding:12px 14px;background:var(--fog);border-radius:var(--r-sm);
+  border:1px dashed var(--border-d)
+}
+.computed-chip{
+  display:flex;flex-direction:column;gap:2px;min-width:110px;flex:1
+}
+.computed-chip-label{font-size:10.5px;color:var(--slate-l);text-transform:uppercase;letter-spacing:.05em;font-weight:500}
+.computed-chip-value{font-size:15px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums}
+.computed-chip-sub{font-size:11px;color:var(--slate-l)}
+
+/* ─── BUTTONS ─── */
+.btn-row{display:flex;gap:10px;margin-top:20px}
+.btn-primary{
+  flex:1;min-height:50px;
+  background:linear-gradient(135deg,var(--crimson),var(--crimson-d));
+  color:#fff;border:none;border-radius:var(--r-sm);
+  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 4px 14px rgba(192,57,43,.30);
+  -webkit-tap-highlight-color:transparent
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(192,57,43,.40)}
+.btn-primary:active{transform:translateY(0)}
+.btn-secondary{
+  min-height:50px;padding:0 22px;
+  background:var(--white);color:var(--slate);
+  border:1.5px solid var(--border);border-radius:var(--r-sm);
+  font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+  -webkit-tap-highlight-color:transparent
+}
+.btn-secondary:hover{border-color:var(--border-d);color:var(--navy);background:var(--fog)}
+
+/* ════════════════════════════════
+   RESULTS
+   ════════════════════════════════ */
+#results{display:none}
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-top:6px;flex-wrap:wrap;gap:8px}
+.results-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--navy);font-weight:400}
+.results-meta{font-size:11.5px;color:var(--slate-l)}
+
+/* ─── ALERT CARDS ─── */
+.alert-card{border-radius:var(--r);padding:16px 20px;margin-bottom:12px;display:flex;gap:12px;align-items:flex-start;animation:fadeUp .35s ease both}
+.alert-danger{background:var(--danger-l);border:1.5px solid #FCA5A5}
+.alert-warn{background:var(--warn-l);border:1.5px solid #FCD34D}
+.alert-info{background:var(--violet-l);border:1.5px solid #C4B5FD}
+.alert-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-danger{background:rgba(155,28,28,.12)} .ai-warn{background:rgba(146,64,14,.10)} .ai-info{background:rgba(91,33,182,.10)}
+.alert-content h4{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}
+.alert-danger h4{color:var(--danger)} .alert-warn h4{color:var(--warn)} .alert-info h4{color:var(--violet)}
+.alert-content p{font-size:13.5px;line-height:1.6}
+.alert-danger p{color:#7F1D1D} .alert-warn p{color:#78350F} .alert-info p{color:#3B0764}
+
+/* ─── RESULT CARDS ─── */
+.result-card{background:var(--white);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);margin-bottom:12px;overflow:hidden;animation:fadeUp .4s ease both}
+.rc-header{padding:14px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--fog)}
+.rc-stripe{width:4px;height:28px;border-radius:4px;flex-shrink:0}
+.rcs-red{background:linear-gradient(180deg,var(--crimson),var(--crimson-d))}
+.rcs-teal{background:linear-gradient(180deg,var(--teal-m),var(--teal))}
+.rcs-gold{background:linear-gradient(180deg,#E8B020,var(--gold))}
+.rcs-navy{background:linear-gradient(180deg,var(--navy-m),var(--navy))}
+.rcs-green{background:linear-gradient(180deg,#2E8B57,var(--success))}
+.rcs-slate{background:linear-gradient(180deg,var(--slate),#2D3748)}
+.rcs-violet{background:linear-gradient(180deg,#7C3AED,var(--violet))}
+.rc-title{font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--slate)}
+.rc-desc{font-size:11px;color:var(--slate-l);margin-top:1px}
+.rc-body{padding:18px 22px}
+
+/* ─── METRICS ─── */
+.metric-table{width:100%;border-collapse:collapse}
+.metric-table tr{border-bottom:1px solid var(--fog-d)}
+.metric-table tr:last-child{border-bottom:none}
+.metric-table td{padding:8px 0;font-size:13.5px;vertical-align:middle}
+.mt-label{color:var(--slate-l);font-weight:400;width:44%}
+.mt-value{color:var(--navy);font-weight:500;font-variant-numeric:tabular-nums}
+.mt-badge{text-align:right}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:20px}
+.b-low{background:var(--danger-l);color:var(--danger)}
+.b-high{background:var(--warn-l);color:var(--warn)}
+.b-ok{background:var(--success-l);color:var(--success)}
+.b-info{background:var(--violet-l);color:var(--violet)}
+
+/* ─── CONCLUSION BOXES ─── */
+.conclusion-box{margin-top:14px;padding:13px 15px;background:var(--fog);border-radius:var(--r-sm);border-left:3px solid var(--border-d);font-size:13.5px;line-height:1.7;color:var(--slate)}
+.conclusion-box.cc-red{border-left-color:var(--crimson);background:var(--crimson-l);color:var(--crimson-d)}
+.conclusion-box.cc-teal{border-left-color:var(--teal);background:var(--teal-l);color:var(--teal)}
+.conclusion-box.cc-gold{border-left-color:var(--gold);background:var(--gold-l);color:var(--warn)}
+.conclusion-box.cc-green{border-left-color:var(--success);background:var(--success-l);color:var(--success)}
+.conclusion-box.cc-violet{border-left-color:var(--violet);background:var(--violet-l);color:var(--violet)}
+.conclusion-box strong{font-weight:600}
+
+/* ─── DDX ─── */
+.ddx-list{display:flex;flex-direction:column;gap:0}
+.ddx-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--fog-d)}
+.ddx-item:last-child{border-bottom:none;padding-bottom:0}
+.ddx-rank{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px}
+.dr-1{background:linear-gradient(135deg,var(--crimson),var(--crimson-d));color:#fff}
+.dr-2,.dr-3,.dr-4{background:var(--fog-d);color:var(--slate)}
+.ddx-diag{font-size:14px;font-weight:500;color:var(--navy);line-height:1.4}
+.ddx-reason{font-size:12.5px;color:var(--slate-l);margin-top:3px;line-height:1.5}
+
+/* ─── MANEJO ─── */
+.manejo-list{display:flex;flex-direction:column;gap:0}
+.manejo-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--fog-d);align-items:flex-start}
+.manejo-item:last-child{border-bottom:none;padding-bottom:0}
+.manejo-num{width:22px;height:22px;border-radius:50%;background:var(--teal-l);border:1.5px solid rgba(11,107,107,.2);color:var(--teal);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.manejo-text{font-size:13.5px;line-height:1.7;color:var(--slate)}
+.manejo-text strong{color:var(--navy);font-weight:600}
+.guide-footer{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--slate-l);display:flex;align-items:center;gap:6px}
+
+/* ─── GANZONI HIGHLIGHT ─── */
+.ganzoni-box{
+  background:linear-gradient(135deg,rgba(26,43,74,.04),rgba(11,107,107,.04));
+  border:1.5px solid var(--teal-l);border-radius:var(--r);
+  padding:16px 18px;margin-top:14px
+}
+.ganzoni-title{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ganzoni-value{font-size:28px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1}
+.ganzoni-unit{font-size:13px;color:var(--slate-l);margin-top:2px}
+.ganzoni-note{font-size:12px;color:var(--slate);margin-top:8px;line-height:1.5}
+
+/* ─── MENTZER BOX ─── */
+.mentzer-box{
+  background:linear-gradient(135deg,rgba(212,160,23,.05),rgba(192,57,43,.04));
+  border:1.5px solid var(--gold-l);border-radius:var(--r);
+  padding:14px 16px;margin-top:14px;display:flex;gap:14px;align-items:center
+}
+.mentzer-score{font-size:32px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;min-width:56px;text-align:center}
+.mentzer-text-wrap{}
+.mentzer-title{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.mentzer-result{font-size:14px;font-weight:600;color:var(--navy)}
+.mentzer-sub{font-size:12px;color:var(--slate-l);margin-top:2px}
+
+/* ─── PCR BADGE ─── */
+.pcr-warn-box{background:var(--warn-l);border:1.5px solid #FCD34D;border-radius:var(--r-sm);padding:10px 14px;margin-top:12px;font-size:12.5px;color:var(--warn);line-height:1.5}
+.pcr-warn-box strong{font-weight:600}
+
+/* ─── FOOTER ─── */
+.app-footer-unified{text-align:center;padding:14px 20px;font-size:12px;opacity:.65;color:var(--slate);border-top:1px solid var(--border);margin-top:20px;background:var(--white)}
+
+/* ─── BOTTOM DISCLAIMER STRIP ─── */
+.disclaimer-strip{margin-top:32px;padding:16px 20px;background:var(--white);border-radius:var(--r);border:1px solid var(--border);display:flex;gap:12px;align-items:flex-start}
+.disclaimer-strip svg{flex-shrink:0;margin-top:1px}
+.disclaimer-strip p{font-size:11.5px;color:var(--slate-l);line-height:1.6}
+.disclaimer-strip strong{color:var(--slate);font-weight:500}
+
+/* ════════════════════════════════
+   MOBILE-FIRST MEDIA QUERIES
+   ════════════════════════════════ */
+@media (max-width:640px){
+  .page-wrap{padding:16px 14px 50px}
+  .card{padding:18px 16px}
+  .form-grid-3,.form-grid-4{grid-template-columns:1fr 1fr}
+  .form-grid-2{grid-template-columns:1fr 1fr}
+  .hdr-app-name{font-size:18px}
+  .hdr-logo-wrap{width:40px;height:40px}
+  .hdr-logo-wrap svg{width:20px;height:20px}
+  .app-header-unified{padding:10px 16px;gap:12px}
+  .card-title{font-size:15px}
+  .results-title{font-size:18px}
+  .modal-card{padding:24px 20px 20px}
+  .modal-title{font-size:16px}
+  .ganzoni-value{font-size:22px}
+  .mentzer-score{font-size:26px;min-width:46px}
+  .btn-row{flex-direction:column}
+  .btn-secondary{min-height:44px}
+  .rc-body{padding:14px 16px}
+  .rc-header{padding:12px 16px}
+  .metric-table td{font-size:12.5px}
+}
+@media (max-width:400px){
+  .form-grid-3,.form-grid-4{grid-template-columns:1fr}
+  .hdr-guide-pills{display:none}
+  .trim-tabs{flex-direction:column}
+}
+@media (min-width:641px){
+  .form-grid-4{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     MODAL DISCLAIMER — BLOQUEO INICIAL
+     ════════════════════════════════════════ -->
+<div id="disclaimer-modal">
+  <div class="modal-card">
+    <div class="modal-logo-row">
+      <div class="modal-badge">
+        <svg viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/><path d="M13 6 C9 8.5 8 12 10.5 15.5 C13 19 15 19 17 17 C19 15 18.5 11.5 13 6Z" fill="white" opacity=".9"/></svg>
+      </div>
+      <div class="modal-brand">
+        <div class="modal-brand-name">ANEMIMETRIC®</div>
+        <div class="modal-brand-sub">Motor Clínico Hematológico · YerayFH</div>
+      </div>
+    </div>
+    <div class="modal-title">Aviso legal y condiciones de uso</div>
+    <div class="modal-body">
+      <p>Esta herramienta es un <strong>sistema de soporte a la decisión clínica</strong> basado en guías BSH 2021/22, OMS 2011 y KDIGO 2012/24. <strong>No sustituye en ningún caso el juicio clínico individualizado.</strong></p>
+      <ul>
+        <li>Los resultados son orientativos y deben ser interpretados por un profesional sanitario cualificado.</li>
+        <li>El diagnóstico final y las decisiones terapéuticas son responsabilidad exclusiva del clínico.</li>
+        <li>La herramienta no tiene en cuenta la historia clínica completa del paciente.</li>
+        <li>Uso exclusivo en entorno sanitario profesional o educativo.</li>
+      </ul>
+    </div>
+    <div class="modal-checkbox-row">
+      <input type="checkbox" id="modal-check" onchange="toggleModalBtn()"/>
+      <label for="modal-check">He leído y acepto las condiciones de uso. Soy un profesional sanitario o estudiante del ámbito de la salud y utilizaré esta herramienta como apoyo clínico, no como sustituto del juicio médico.</label>
+    </div>
+    <button class="modal-btn" id="modal-accept-btn" onclick="acceptDisclaimer()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Acepto las condiciones — Acceder a ANEMIMETRIC®
+    </button>
+    <div class="modal-footer-note">© 2026 YerayFH - de la Mata · <a href="mailto:ydelamata01@gmail.com" style="color:inherit;text-decoration:underline">ydelamata01@gmail.com</a></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     YERAYFH UNIFIED HEADER
+     ════════════════════════════════════════ -->
+<header class="app-header-unified">
+  <div class="hdr-logo-wrap">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="rgba(255,255,255,.4)" stroke-width="1.2"/><path d="M12 5 C8.5 7 7.5 10.5 10 14 C12.5 17.5 14 17.5 16 15.5 C18 13.5 17 10 12 5Z" fill="white" opacity=".9"/><circle cx="12" cy="12" r="1.8" fill="rgba(255,255,255,.6)"/></svg>
+  </div>
+  <div class="hdr-text">
+    <div class="hdr-meta">YerayFH - de la Mata &nbsp;&middot;&nbsp; <a href="mailto:ydelamata01@gmail.com">ydelamata01@gmail.com</a></div>
+    <div class="hdr-dept">Farmacia Hospitalaria</div>
+    <div class="hdr-app-name">ANEMIMETRIC&#174;</div>
+    <div class="hdr-guide-pills">
+      <span class="hdr-pill hp-bsh">BSH 2021/22</span>
+      <span class="hdr-pill hp-oms">OMS 2011</span>
+      <span class="hdr-pill hp-kdigo">KDIGO 2012/24</span>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════
+     PAGE CONTENT
+     ════════════════════════════════════════ -->
+<div class="page-wrap">
+
+  <div class="page-intro" style="animation:fadeUp .4s ease both">
+    <div class="page-intro-icon">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 3 C6.5 6 5.5 11 8.5 15 C11.5 19 13.5 19 16 17 C18.5 15 17.5 11 11 3Z" stroke="#C0392B" stroke-width="1.5" stroke-linejoin="round"/><circle cx="11" cy="11" r="2" stroke="#C0392B" stroke-width="1.2"/></svg>
+    </div>
+    <div class="page-intro-text">
+      <h2>Motor ANEMIMETRIC® v2.0</h2>
+      <p>Diagnóstico diferencial · Cinética del hierro · Índice de Mentzer · Fórmula de Ganzoni · Ajuste por PCR y Embarazo</p>
+    </div>
+  </div>
+
+  <div id="form-area">
+
+    <!-- ── CARD 1: PACIENTE ── -->
+    <div class="card" style="animation-delay:.04s">
+      <div class="card-header">
+        <div class="card-icon ci-red">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3.5" stroke="#C0392B" stroke-width="1.5"/><path d="M3 16c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="#C0392B" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div><div class="card-title">Datos del paciente</div><div class="card-subtitle">Sexo, edad, embarazo y peso — definen umbrales OMS y Ganzoni</div></div>
+      </div>
+      <div class="form-grid-2">
+        <div class="field">
+          <label class="field-label">Sexo biológico</label>
+          <div class="sex-toggle">
+            <button class="sex-btn active" id="btn-fem" onclick="setSex('F')">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M7 9v4M5 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Mujer
+            </button>
+            <button class="sex-btn" id="btn-mas" onclick="setSex('M')">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M9.5 4.5L13 1M13 1h-3M13 1v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Hombre
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Edad <span class="field-unit">años</span></label>
+          <input type="number" class="field-input" id="edad" placeholder="ej. 45" min="1" max="110" oninput="markValue(this)"/>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <!-- Embarazo -->
+      <div class="form-grid-2">
+        <div class="field">
+          <label class="field-label">¿Embarazada? <span class="new-tag">nuevo</span></label>
+          <div class="bool-toggle">
+            <button class="bool-btn" id="btn-emb-si" onclick="setEmbarazo(true)">Sí</button>
+            <button class="bool-btn active-no" id="btn-emb-no" onclick="setEmbarazo(false)">No</button>
+          </div>
+          <div class="trim-select-wrap" id="trim-wrap">
+            <div class="section-label" style="margin-bottom:8px">Trimestre</div>
+            <div class="trim-tabs">
+              <button class="trim-tab active" id="trim1" onclick="setTrimestre(1)">1.º Trim<br><small>&lt;13 sem</small></button>
+              <button class="trim-tab" id="trim2" onclick="setTrimestre(2)">2.º Trim<br><small>13–28 sem</small></button>
+              <button class="trim-tab" id="trim3" onclick="setTrimestre(3)">3.º Trim<br><small>&gt;28 sem</small></button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Peso <span class="field-unit">kg</span> <span class="calc-tag">Ganzoni</span></label>
+          <input type="number" class="field-input" id="peso" placeholder="ej. 68" step="0.5" oninput="markValue(this); calcGanzoniLive()"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CARD 2: HEMOGRAMA ── -->
+    <div class="card" style="animation-delay:.08s">
+      <div class="card-header">
+        <div class="card-icon ci-red">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2 C5 5 3 9 5.5 12.5 C8 16 10 16 12 14 C14 12 13.5 8 9 2Z" stroke="#C0392B" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </div>
+        <div><div class="card-title">Hemograma básico</div><div class="card-subtitle">Morfología eritrocitaria · VCM, RDW, Hematíes → Índice de Mentzer</div></div>
+      </div>
+      <div class="form-grid-4">
+        <div class="field">
+          <label class="field-label">Hb <span class="field-unit">g/dL</span><span style="font-size:9px;color:var(--crimson);font-weight:700">★</span></label>
+          <input type="number" class="field-input" id="hb" placeholder="ej. 9.5" step="0.1" oninput="markValue(this);calcGanzoniLive()"/>
+        </div>
+        <div class="field">
+          <label class="field-label">VCM <span class="field-unit">fL</span></label>
+          <input type="number" class="field-input" id="vcm" placeholder="ej. 70" step="0.1" oninput="markValue(this);calcMentzerLive()"/>
+        </div>
+        <div class="field">
+          <label class="field-label">HCM <span class="field-unit">pg</span></label>
+          <input type="number" class="field-input" id="hcm" placeholder="ej. 22" step="0.1" oninput="markValue(this)"/>
+        </div>
+        <div class="field">
+          <label class="field-label">RDW <span class="field-unit">%</span></label>
+          <input type="number" class="field-input" id="rdw" placeholder="ej. 16" step="0.1" oninput="markValue(this)"/>
+        </div>
+      </div>
+      <div class="form-grid-2" style="margin-top:12px">
+        <div class="field">
+          <label class="field-label">Hematíes <span class="field-unit">×10¹²/L</span> <span class="calc-tag">Mentzer</span></label>
+          <input type="number" class="field-input" id="hematies" placeholder="ej. 4.2" step="0.01" oninput="markValue(this);calcMentzerLive()"/>
+        </div>
+        <div class="field">
+          <label class="field-label">Hematocrito <span class="field-unit">%</span> <span class="optional-tag">opcional</span></label>
+          <input type="number" class="field-input" id="hematocrito" placeholder="ej. 32" step="0.1" oninput="markValue(this)"/>
+        </div>
+      </div>
+      <!-- Computed: Mentzer live -->
+      <div id="mentzer-live-wrap" style="display:none"></div>
+    </div>
+
+    <!-- ── CARD 3: CINÉTICA HIERRO ── -->
+    <div class="card" style="animation-delay:.12s">
+      <div class="card-header">
+        <div class="card-icon ci-gold">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="8" width="12" height="7" rx="2" stroke="#D4A017" stroke-width="1.5"/><path d="M6 8V6a3 3 0 016 0v2" stroke="#D4A017" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="12" r="1.5" fill="#D4A017"/></svg>
+        </div>
+        <div><div class="card-title">Cinética del hierro</div><div class="card-subtitle">Ferritina + IST + PCR — criterio compuesto BSH 2021</div></div>
+      </div>
+      <div class="form-grid-3">
+        <div class="field">
+          <label class="field-label">Ferritina <span class="field-unit">ng/mL</span></label>
+          <input type="number" class="field-input" id="ferritina" placeholder="ej. 8" step="0.1" oninput="markValue(this)"/>
+        </div>
+        <div class="field">
+          <label class="field-label">Hierro sérico <span class="field-unit">µg/dL</span></label>
+          <input type="number" class="field-input" id="hierro" placeholder="ej. 40" step="0.1" oninput="markValue(this);calcISTLive()"/>
+        </div>
+        <div class="field">
+          <label class="field-label">TIBC <span class="field-unit">µg/dL</span></label>
+          <input type="number" class="field-input" id="tibc" placeholder="ej. 450" step="0.1" oninput="markValue(this);calcISTLive()"/>
+        </div>
+      </div>
+      <div class="form-grid-2" style="margin-top:12px">
+        <div class="field">
+          <label class="field-label">IST <span class="field-unit">%</span> <span class="optional-tag">o se calcula</span></label>
+          <input type="number" class="field-input" id="ist" placeholder="automático si hay Hierro+TIBC" step="0.1" oninput="markValue(this)"/>
+        </div>
+        <div class="field">
+          <label class="field-label">PCR <span class="field-unit">mg/L</span> <span class="new-tag">nuevo</span></label>
+          <input type="number" class="field-input" id="pcr" placeholder="ej. 12" step="0.1" oninput="markValue(this)"/>
+        </div>
+      </div>
+      <div class="form-grid-2" style="margin-top:12px">
+        <div class="field">
+          <label class="field-label">Transferrina <span class="field-unit">mg/dL</span> <span class="optional-tag">opcional</span></label>
+          <input type="number" class="field-input" id="transferrina" placeholder="ej. 380" step="0.1" oninput="markValue(this)"/>
+        </div>
+      </div>
+      <div id="ist-live-wrap" style="display:none;margin-top:12px"></div>
+    </div>
+
+    <!-- ── CARD 4: RESPUESTA MEDULAR ── -->
+    <div class="card" style="animation-delay:.16s">
+      <div class="card-header">
+        <div class="card-icon ci-teal">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 14 Q5 6 9 5 Q13 4 15 10" stroke="#0B6B6B" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="5" r="2" stroke="#0B6B6B" stroke-width="1.5"/></svg>
+        </div>
+        <div><div class="card-title">Respuesta medular</div><div class="card-subtitle">IRC — regenerativa vs arregenerativa</div></div>
+      </div>
+      <div class="form-grid-2">
+        <div class="field">
+          <label class="field-label">Reticulocitos <span class="field-unit">%</span> <span class="optional-tag">opcional</span></label>
+          <input type="number" class="field-input" id="retic" placeholder="ej. 0.8" step="0.1" oninput="markValue(this)"/>
+        </div>
+        <div class="field">
+          <label class="field-label">IRC <span class="field-unit">índice corregido</span> <span class="optional-tag">opcional</span></label>
+          <input type="number" class="field-input" id="irc" placeholder="ej. 0.5" step="0.01" oninput="markValue(this)"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CARD 5: DATOS ADICIONALES ── -->
+    <div class="card" style="animation-delay:.20s">
+      <div class="card-header">
+        <div class="card-icon ci-navy">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="12" height="12" rx="2.5" stroke="#1A2B4A" stroke-width="1.5"/><path d="M6 9h6M9 6v6" stroke="#1A2B4A" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div><div class="card-title">Datos adicionales</div><div class="card-subtitle">Función renal (KDIGO) · Vitaminas · Eje megaloblástico</div></div>
+      </div>
+      <div class="form-grid-3">
+        <div class="field">
+          <label class="field-label">Creatinina <span class="field-unit">mg/dL</span> <span class="optional-tag">opcional</span></label>
+          <input type="number" class="field-input" id="creatinina" placeholder="ej. 2.1" step="0.01" oninput="markValue(this)"/>
+        </div>
+        <div class="field">
+          <label class="field-label">Vitamina B12 <span class="field-unit">pg/mL</span> <span class="optional-tag">opcional</span></label>
+          <input type="number" class="field-input" id="b12" placeholder="ej. 120" step="1" oninput="markValue(this)"/>
+        </div>
+        <div class="field">
+          <label class="field-label">Ácido fólico <span class="field-unit">ng/mL</span> <span class="optional-tag">opcional</span></label>
+          <input type="number" class="field-input" id="folato" placeholder="ej. 2.5" step="0.1" oninput="markValue(this)"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GANZONI LIVE ── -->
+    <div id="ganzoni-live-card" class="card" style="display:none;animation-delay:.22s;border:1.5px dashed var(--teal-l);background:linear-gradient(135deg,rgba(11,107,107,.02),rgba(26,43,74,.02))">
+      <div class="card-header" style="margin-bottom:8px">
+        <div class="card-icon ci-teal">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3v12M3 9h12" stroke="#0B6B6B" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <div><div class="card-title">Fórmula de Ganzoni — Vista previa</div><div class="card-subtitle">Déficit total de hierro elemental · Se actualizará en el análisis</div></div>
+      </div>
+      <div id="ganzoni-live-content"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="analizar()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/><path d="M8 5v3l2 1.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Generar análisis ANEMIMETRIC®
+      </button>
+      <button class="btn-secondary" onclick="resetForm()">Limpiar</button>
+    </div>
+  </div>
+
+  <!-- ── RESULTS ── -->
+  <div id="results"></div>
+
+  <!-- ── BOTTOM DISCLAIMER ── -->
+  <div class="disclaimer-strip">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7.5" stroke="#94A3B8" stroke-width="1.3"/><path d="M9 8v4.5M9 6.5v.01" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <p><strong>ANEMIMETRIC® — Aviso clínico:</strong> Herramienta de soporte a la decisión. No sustituye el juicio clínico profesional. Basado en BSH 2021/22, OMS 2011, KDIGO 2012/24. Todo diagnóstico y decisión terapéutica debe ser confirmado por el facultativo responsable.</p>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<footer class="app-footer-unified">&copy; 2026 YerayFH - de la Mata &nbsp;&middot;&nbsp; ANEMIMETRIC® &nbsp;&middot;&nbsp; Farmacia Hospitalaria</footer>
+
+<!-- ════════════════════════════════════════
+     JAVASCRIPT ANEMIMETRIC ENGINE v2.0
+     ════════════════════════════════════════ -->
+<script>
+/* ─── ESTADO GLOBAL ─── */
+let sexo = 'F', embarazada = false, trimestre = 1;
+
+/* ─── MODAL DISCLAIMER ─── */
+function initDisclaimer(){
+  if(localStorage.getItem('anemimetric_accepted')==='1'){
+    document.getElementById('disclaimer-modal').classList.add('hidden');
+    document.body.style.overflow='';
+  } else {
+    document.body.style.overflow='hidden';
+  }
+}
+function toggleModalBtn(){
+  const checked=document.getElementById('modal-check').checked;
+  const btn=document.getElementById('modal-accept-btn');
+  btn.classList.toggle('enabled',checked);
+}
+function acceptDisclaimer(){
+  localStorage.setItem('anemimetric_accepted','1');
+  const m=document.getElementById('disclaimer-modal');
+  m.style.transition='opacity .3s ease';
+  m.style.opacity='0';
+  setTimeout(()=>{m.classList.add('hidden');document.body.style.overflow='';},300);
+}
+initDisclaimer();
+
+/* ─── HELPERS ─── */
+function setSex(s){
+  sexo=s;
+  document.getElementById('btn-fem').classList.toggle('active',s==='F');
+  document.getElementById('btn-mas').classList.toggle('active',s==='M');
+  if(s==='M') setEmbarazo(false); // <--- Línea añadida
+  calcGanzoniLive();
+}
+function setEmbarazo(v){
+  embarazada=v;
+  document.getElementById('btn-emb-si').className='bool-btn'+(v?' active-yes':'');
+  document.getElementById('btn-emb-no').className='bool-btn'+(!v?' active-no':'');
+  document.getElementById('trim-wrap').classList.toggle('visible',v);
+}
+function setTrimestre(t){
+  trimestre=t;
+  [1,2,3].forEach(i=>document.getElementById('trim'+i).classList.toggle('active',i===t));
+}
+function markValue(el){ el.classList.toggle('has-value',el.value!=='') }
+function val(id){ const v=parseFloat(document.getElementById(id).value); return isNaN(v)?null:v }
+
+/* ─── LIVE CALCULATIONS ─── */
+function calcMentzerLive(){
+  const vcm=val('vcm'), hem=val('hematies');
+  const wrap=document.getElementById('mentzer-live-wrap');
+  if(!vcm || !hem || hem <= 0){ wrap.style.display='none'; return; }
+  const m=(vcm/hem).toFixed(2);
+  const isFerro=parseFloat(m)>13;
+  wrap.style.display='block';
+  wrap.innerHTML=`<div class="mentzer-box">
+    <div class="mentzer-score">${m}</div>
+    <div class="mentzer-text-wrap">
+      <div class="mentzer-title">Índice de Mentzer</div>
+      <div class="mentzer-result">${isFerro?'⟶ Sugiere Ferropenia':'⟶ Sugiere Talasemia'}</div>
+      <div class="mentzer-sub">${isFerro?'Valor >13 — sensibilidad ~79% para déficit de hierro':'Valor <13 — orientativo hacia talasemia rasgo · Confirmar con HPLC'}</div>
+    </div>
+  </div>`;
+}
+
+function calcISTLive(){
+  const h=val('hierro'), t=val('tibc');
+  const wrap=document.getElementById('ist-live-wrap');
+  if(!h||!t||t===0){ wrap.style.display='none'; return; }
+  const ist=((h/t)*100).toFixed(1);
+  wrap.style.display='block';
+  wrap.innerHTML=`<div class="computed-row">
+    <div class="computed-chip">
+      <div class="computed-chip-label">IST calculado</div>
+      <div class="computed-chip-value">${ist}%</div>
+      <div class="computed-chip-sub">(Hierro / TIBC) × 100</div>
+    </div>
+    <div class="computed-chip">
+      <div class="computed-chip-label">Referencia</div>
+      <div class="computed-chip-value" style="font-size:14px;color:${parseFloat(ist)<16?'var(--danger)':'var(--success)'}">
+        ${parseFloat(ist)<16?'↓ Bajo':'✓ Normal'}
+      </div>
+      <div class="computed-chip-sub">Normal: 16–45%</div>
+    </div>
+  </div>`;
+}
+
+function calcGanzoniLive(){
+  const hb=val('hb'), peso=val('peso');
+  const card=document.getElementById('ganzoni-live-card');
+  const content=document.getElementById('ganzoni-live-content');
+  // Evitar calcular si no hay datos o si la Hb es >= 15
+  if(!hb || !peso || hb >= 15){ card.style.display='none'; return; }
+  const g=calcGanzoni(peso,hb);
+  card.style.display='block';
+  content.innerHTML=renderGanzoni(g,hb,peso);
+}
+
+function calcGanzoni(peso,hb){
+  return Math.round(peso*(15-hb)*2.4+500);
+}
+
+function renderGanzoni(g,hb,peso){
+  const ampollas_500=Math.ceil(g/500);
+  const ampollas_1000=Math.ceil(g/1000);
+  return `<div class="ganzoni-box">
+    <div class="ganzoni-title">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Fórmula de Ganzoni — Déficit total de hierro
+    </div>
+    <div class="ganzoni-value">${g} mg</div>
+    <div class="ganzoni-unit">hierro elemental total necesario</div>
+    <div class="ganzoni-note">
+      <strong>Fórmula:</strong> Peso (${peso} kg) × (15 − Hb ${hb} g/dL) × 2.4 + 500 mg<br>
+      <strong>Equivalente en hierro IV:</strong> ~${ampollas_500} amp de 500 mg <em>o</em> ~${ampollas_1000} amp de 1.000 mg (carboximaltosa/isomaltósido)<br>
+      <span style="font-size:11px;color:var(--slate-l)">Referencia BSH 2021 · Puede redondearse según ficha técnica</span>
+    </div>
+  </div>`;
+}
+
+/* ─── UMBRAL Hb ─── */
+function getHbThreshold(){
+  if(embarazada){
+    if(trimestre===2) return 10.5;
+    return 11.0;
+  }
+  return sexo==='F'?12.0:13.0;
+}
+function getHbThresholdLabel(){
+  if(embarazada) return trimestre===2?'OMS (2.º Trim embarazo: <10.5 g/dL)':'OMS (1.º/3.º Trim embarazo: <11.0 g/dL)';
+  return `OMS 2011 (${sexo==='F'?'mujer':'hombre'}: <${sexo==='F'?12:13}.0 g/dL)`;
+}
+
+function clasificarAnemia(hb){
+  const t=getHbThreshold();
+  if(!hb||hb>=t) return null;
+  if(hb>=10.0) return 'leve';
+  if(hb>=8.0) return 'moderada';
+  if(hb>=6.5) return 'grave';
+  return 'muy_grave';
+}
+
+function clasificarVCM(vcm){
+  if(!vcm) return null;
+  if(vcm<80) return 'microcitica';
+  if(vcm>100) return 'macrocitica';
+  return 'normocitica';
+}
+
+function calcularIST(h,t){ return(h&&t&&t>0)?(h/t)*100:null }
+
+function estimarTFG(cr,edad){
+  if(!cr||!edad) return null;
+  const k=sexo==='F'?0.7:0.9,a=sexo==='F'?-0.241:-0.302,sf=sexo==='F'?1.012:1.0;
+  const r=cr/k;
+  return Math.round(142*Math.pow(Math.min(r,1),a)*Math.pow(Math.max(r,1),-1.2)*Math.pow(0.9938,edad)*sf);
+}
+
+function badge(v,low,high){
+  if(v===null) return '';
+  if(v<low) return '<span class="badge b-low">Bajo</span>';
+  if(v>high) return '<span class="badge b-high">Alto</span>';
+  return '<span class="badge b-ok">Normal</span>';
+}
+
+function metricRow(lbl,val,unit,b){
+  if(val===null||val===undefined) return '';
+  return `<tr><td class="mt-label">${lbl}</td><td class="mt-value">${val} ${unit}</td><td class="mt-badge">${b||''}</td></tr>`;
+}
+
+function sectionCard(stripe,title,desc,body,delay){
+  return `<div class="result-card" style="animation-delay:${delay}s">
+    <div class="rc-header"><div class="rc-stripe ${stripe}"></div>
+      <div><div class="rc-title">${title}</div>${desc ? '<div class="rc-desc">' + desc + '</div>' : ''}</div></div>
+    <div class="rc-body">${body}</div>
+  </div>`;
+}
+
+/* ════════════════════════════════
+   FUNCIÓN PRINCIPAL
+   ════════════════════════════════ */
+function analizar(){
+  const hb=val('hb');
+  if(!hb){ alert('La hemoglobina (Hb) es obligatoria para el análisis.'); return; }
+
+  const vcm=val('vcm'), hcm=val('hcm'), rdw=val('rdw');
+  const hematies=val('hematies'), hematocrito=val('hematocrito');
+  const ferritina=val('ferritina'), hierro=val('hierro'), tibc=val('tibc');
+  let inputIst = val('ist');
+  let ist = inputIst !== null ? inputIst : calcularIST(hierro, tibc);
+  const pcr=val('pcr');
+  const retic=val('retic'), irc=val('irc');
+  const creatinina=val('creatinina'), b12=val('b12'), folato=val('folato');
+  const edad=val('edad'), peso=val('peso');
+
+  const sevAnemia=clasificarAnemia(hb);
+  const morfVCM=clasificarVCM(vcm);
+  const tfg=estimarTFG(creatinina,edad);
+  const hbT=getHbThreshold();
+  const mentzer=(vcm&&hematies)?+(vcm/hematies).toFixed(2):null;
+  const ganzoni=(peso&&hb)?calcGanzoni(peso,hb):null;
+  const inflamacion=pcr!==null&&pcr>5;
+
+  let html=`<div class="results-header">
+    <div class="results-title">Análisis ANEMIMETRIC®</div>
+    <div class="results-meta">${new Date().toLocaleString('es-ES',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+  </div>`;
+
+  /* ── ALERTAS ── */
+  if(hb<7.0){
+    html+=`<div class="alert-card alert-danger">
+      <div class="alert-icon ai-danger"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3L16 15H2L9 3Z" stroke="#9B1C1C" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 8v3M9 13v.01" stroke="#9B1C1C" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="alert-content"><h4>⚠ Alerta Crítica — Hb &lt;7 g/dL</h4>
+      <p>Hb <strong>${hb.toFixed(1)} g/dL</strong> — Anemia grave/muy grave (OMS). Umbral transfusional BSH &lt;7 g/dL. Valorar transfusión urgente si hay compromiso hemodinámico, síntomas isquémicos o intolerancia clínica. Solicitar pruebas cruzadas.</p></div>
+    </div>`;
+  } else if(hb<8.0){
+    html+=`<div class="alert-card alert-warn">
+      <div class="alert-icon ai-warn"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#92400E" stroke-width="1.5"/><path d="M9 6v4M9 12v.01" stroke="#92400E" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="alert-content"><h4>Aviso — Anemia moderada</h4>
+      <p>Hb <strong>${hb.toFixed(1)} g/dL</strong>. Evaluar sintomatología, tolerancia y comorbilidades. Puede requerir tratamiento urgente.</p></div>
+    </div>`;
+  }
+
+  if(embarazada){
+    html+=`<div class="alert-card alert-info">
+      <div class="alert-icon ai-info"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#5B21B6" stroke-width="1.5"/><path d="M9 6v5M9 13v.01" stroke="#5B21B6" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="alert-content"><h4>Modo Embarazo Activo — ${trimestre===2?'2.º Trimestre':'1.º / 3.º Trimestre'}</h4>
+      <p>Umbral aplicado: Hb &lt;${hbT} g/dL (OMS). Durante el embarazo la hemodilucion fisiológica reduce la Hb basal. La ferropenia es la causa más frecuente de anemia gestacional. El hierro IV es seguro a partir del 2.º trimestre.</p></div>
+    </div>`;
+  }
+
+  if(inflamacion){
+    html+=`<div class="alert-card alert-warn">
+      <div class="alert-icon ai-warn"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3L16 15H2L9 3Z" stroke="#92400E" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 8v3M9 13v.01" stroke="#92400E" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="alert-content"><h4>PCR Elevada — Inflamación Activa (PCR ${pcr} mg/L)</h4>
+      <p><strong>La Ferritina se comporta como reactante de fase aguda.</strong> En este contexto, una Ferritina en rango 30–100 ng/mL con IST &lt;20% confirma ferropenia funcional según BSH, ya que la PCR elevada eleva artificialmente la Ferritina, enmascarando depósitos realmente disminuidos.</p></div>
+    </div>`;
+  }
+
+/* ── 1. MORFOLOGÍA ── */
+  const vcmLabel = !morfVCM?'—':morfVCM==='microcitica'?'Microcítica (<80 fL)':morfVCM==='macrocitica'?'Macrocítica (>100 fL)':'Normocítica (80–100 fL)';
+  let morfConcl='';
+  if(!morfVCM) {
+    morfConcl=`<p style="color:var(--slate-l);font-size:13.5px">VCM no aportado — aporte el hemograma completo para clasificación morfológica.</p>`;
+  } else if(morfVCM==='microcitica') {
+    let rdwText = 'no aportado';
+    if(rdw) {
+      rdwText = rdw > 14.5 ? '<strong>'+rdw+'% (elevado)</strong> → orienta a ferropenia o déficit mixto (Mentzer)' : '<strong>'+rdw+'% (normal)</strong> → sugiere talasemia rasgo';
+    }
+    morfConcl=`<div class="conclusion-box cc-red"><strong>Patrón microcítico-hipocrónico.</strong> DD: anemia ferropénica, AIC, talasemia, anemia sideroblástica. RDW ${rdwText}.</div>`;
+  } else if(morfVCM==='macrocitica') {
+    morfConcl=`<div class="conclusion-box cc-gold"><strong>Patrón macrocítico.</strong> DD: déficit B12/folato, hepatopatía, hipotiroidismo, fármacos (MTX, hidroxiurea, AZT), síndrome mielodisplásico.</div>`;
+  } else {
+    morfConcl=`<div class="conclusion-box"><strong>Patrón normocítico.</strong> Sugiere AIC, anemia renal, hemólisis, pérdida hemática reciente o aplasia. La respuesta reticulocitaria discrimina la causa.</div>`;
+  }
+
+  const sevLabel={leve:'Leve',moderada:'Moderada',grave:'Grave',muy_grave:'Muy grave'}[sevAnemia]||'';
+  let sevRow = '';
+  if (sevAnemia) {
+    const badgeClass = sevAnemia === 'leve' ? 'b-high' : 'b-low';
+    sevRow = metricRow('Gravedad', sevLabel + ' (' + getHbThresholdLabel() + ')', '', '<span class="badge ' + badgeClass + '">' + sevLabel + '</span>');
+  }
+
+  let morfMetrics=`<table class="metric-table">
+    ${metricRow('Hemoglobina',hb.toFixed(1),'g/dL',badge(hb,hbT,99))}
+    ${sevRow}
+    ${vcm?metricRow('VCM',vcm.toFixed(1),'fL',badge(vcm,80,100)):''}
+    ${hcm?metricRow('HCM',hcm.toFixed(1),'pg',badge(hcm,27,33)):''}
+    ${rdw?metricRow('RDW',rdw.toFixed(1),'%',badge(rdw,0,14.5)):''}
+    ${hematies?metricRow('Hematíes',hematies.toFixed(2),'×10¹²/L',badge(hematies,sexo==='F'?3.8:4.5,sexo==='F'?5.1:5.9)):''}
+    ${hematocrito?metricRow('Hematocrito',hematocrito.toFixed(1),'%',badge(hematocrito,sexo==='F'?36:40,sexo==='F'?46:52)):''}
+  </table>${morfConcl}`;
+
+  html+=sectionCard('rcs-red','Análisis Morfológico',`Clasificación eritrocitaria — ${getHbThresholdLabel()}`,morfMetrics,0.04);
+
+  /* ── MENTZER ── */
+  if(mentzer!==null){
+    const isFerro=mentzer>13;
+    const mentzerSub = isFerro ? 'Valor >13 (sensibilidad ~79%): favorece déficit de hierro sobre hemoglobinopatía. Confirmar con cinética marcial.' : 'Valor <13: mayor probabilidad de portador de talasemia alfa o beta. Confirmar con HPLC de hemoglobinas.';
+    const mentzerInterp = isFerro ? 'El índice de Mentzer >13 en contexto microcítico debe correlacionarse con Ferritina e IST para confirmar ferropenia. Un RDW elevado (>14.5%) refuerza esta hipótesis.' : 'El índice <13 junto a RDW normal en microcitosis es el patrón clásico del portador de talasemia. No suplementar hierro sin confirmar ferropenia coexistente.';
+
+    const mentzerBody=`
+      <div class="mentzer-box">
+        <div class="mentzer-score">${mentzer}</div>
+        <div class="mentzer-text-wrap">
+          <div class="mentzer-title">Índice de Mentzer = VCM / Hematíes</div>
+          <div class="mentzer-result">${isFerro?'⟶ Compatible con Ferropenia':'⟶ Compatible con Talasemia rasgo'}</div>
+          <div class="mentzer-sub">${mentzerSub}</div>
+        </div>
+      </div>
+      <div class="conclusion-box ${isFerro?'cc-red':'cc-gold'}" style="margin-top:12px">
+        <strong>Interpretación clínica:</strong> ${mentzerInterp}
+      </div>`;
+    html+=sectionCard('rcs-gold','Índice de Mentzer','VCM / Hematíes — discriminación ferropenia vs talasemia',mentzerBody,0.07);
+  }
+
+  /* ── 2. ESTADO MARCIAL ── */
+  if(ferritina!==null||ist!==null||hierro!==null){
+    const ferLow=sexo==='F'?12:15;
+    let marcialConcl='';
+    const ferCorrPorPCR = inflamacion && ferritina!==null && ferritina>=30 && ferritina<=100;
+
+    if(ferritina!==null&&ist!==null){
+      if(ferritina<30&&ist<20) marcialConcl=`<div class="conclusion-box cc-red"><strong>Ferropenia absoluta confirmada (BSH 2021).</strong> Ferritina &lt;30 + IST &lt;20%: criterio compuesto positivo. Depósitos agotados con eritropoyesis ferropénica activa.</div>`;
+      else if(ferritina>=30&&ferritina<=100&&ist<20){
+        if(inflamacion) marcialConcl=`<div class="conclusion-box cc-red"><strong>Ferropenia funcional confirmada (BSH + PCR).</strong> Ferritina 30–100 ng/mL con IST &lt;20% Y PCR &gt;5 mg/L: la PCR elevada enmascara la deplección marcial real. Este patrón confirma ferropenia funcional según criterio BSH ajustado por inflamación.</div>`;
+        else marcialConcl=`<div class="conclusion-box cc-gold"><strong>Déficit funcional de hierro / AIC (BSH 2021).</strong> Ferritina 30–100 + IST &lt;20%: bloqueo mediado por hepcidina. Investigar proceso inflamatorio/infeccioso (PCR, VSG).</div>`;
+      }
+      else if(ferritina<30&&ist>=20) marcialConcl=`<div class="conclusion-box cc-gold"><strong>Deplección de depósitos sin ferropenia eritropoyética.</strong> Fase pre-latente. Suplementación preventiva. Monitorizar IST.</div>`;
+      else if(ferritina>100&&ist<16) marcialConcl=`<div class="conclusion-box cc-red"><strong>AIC pura.</strong> Ferritina elevada + IST bajo: bloqueo clásico de hepcidina. Investigar neoplasia, infección crónica, EII, conectivopatía.</div>`;
+      else marcialConcl=`<div class="conclusion-box cc-green"><strong>Perfil marcial normal.</strong> La ferropenia no parece causa primaria. Valorar otras etiologías.</div>`;
+    } else if(ferritina!==null){
+      if(ferritina<30) marcialConcl=`<div class="conclusion-box cc-red"><strong>Ferritina &lt;30 ng/mL — compatible con ferropenia absoluta (BSH).</strong> Completar con IST para criterio compuesto.</div>`;
+      else if(ferritina<=100) marcialConcl=`<div class="conclusion-box cc-gold"><strong>Ferritina en rango intermedio (30–100 ng/mL).</strong> Sin IST${inflamacion?' y con PCR elevada (la Ferritina está artificialmente elevada)':''}: completar estudio marcial.</div>`;
+      else marcialConcl=`<div class="conclusion-box"><strong>Ferritina ≥100 ng/mL.</strong> ${inflamacion?'Con PCR elevada: la Ferritina está elevada como reactante. Puede coexistir ferropenia. Determinar IST.':'Valorar AIC si IST bajo. Completar con IST y marcadores inflamatorios.'}</div>`;
+    }
+
+    const istDisp=ist?ist.toFixed(1):null;
+    let marcialMetrics=`<table class="metric-table">
+      ${ferritina!==null?metricRow('Ferritina',ferritina.toFixed(1),'ng/mL',badge(ferritina,ferLow,150)):''}
+      ${istDisp?metricRow('IST',istDisp,'%',badge(parseFloat(istDisp),16,45)):''}
+      ${hierro?metricRow('Hierro sérico',hierro.toFixed(1),'µg/dL',badge(hierro,60,170)):''}
+      ${tibc?metricRow('TIBC',tibc.toFixed(1),'µg/dL',badge(tibc,250,370)):''}
+      ${pcr!==null?metricRow('PCR',pcr.toFixed(1),'mg/L',badge(pcr,0,5)):''}
+    </table>${marcialConcl}`;
+
+    if(inflamacion) marcialMetrics+=`<div class="pcr-warn-box"><strong>⚡ Ajuste PCR activo:</strong> Con PCR &gt;5 mg/L, la Ferritina no puede interpretarse de forma aislada. Se ha aplicado el criterio compuesto BSH (Ferritina + IST) con corrección por inflamación.</div>`;
+
+    html+=sectionCard('rcs-gold','Estado Marcial — Cinética del Hierro','Criterio compuesto BSH · Ajuste por PCR si inflamación activa',marcialMetrics,0.10);
+  }
+
+  /* ── GANZONI ── */
+  if(ganzoni!==null&&ferritina!==null&&ferritina<100){
+    const gBody=`${renderGanzoni(ganzoni,hb,peso)}
+      <div class="conclusion-box cc-teal" style="margin-top:12px">
+        <strong>Aplicación clínica (BSH 2021):</strong> La Fórmula de Ganzoni es el estándar para calcular la dosis total de hierro IV. Se recomienda administrar la dosis total calculada en una o varias infusiones según la ficha técnica del preparado (carboximaltosa: máx. 1000 mg/dosis; hierro sacarosa: máx. 200 mg/dosis).
+      </div>`;
+    html+=sectionCard('rcs-teal','Fórmula de Ganzoni — Déficit Total de Hierro','Peso × (15 − Hb) × 2.4 + 500 mg · Dosis de hierro IV necesaria',gBody,0.13);
+  }
+
+  /* ── RESPUESTA MEDULAR ── */
+  if(retic!==null||irc!==null){
+    const ircEff=irc||(retic&&hb?(retic*(hb/(sexo==='F'?14:15.5)))/2:null);
+    let reticConcl='';
+    if(ircEff!==null){
+      if(ircEff<2) reticConcl=`<div class="conclusion-box"><strong>Anemia arregenerativa (IRC &lt;2).</strong> Respuesta medular insuficiente. Causa central: ferropenia, déficit vitamínico, anemia renal, aplasia, SMD, hipotiroidismo.</div>`;
+      else reticConcl=`<div class="conclusion-box cc-teal"><strong>Anemia regenerativa (IRC ≥2).</strong> La médula responde. Causa periférica: hemólisis (LDH, haptoglobina, Coombs directo) o hemorragia aguda.</div>`;
+    }
+    let reticMetrics=`<table class="metric-table">
+      ${retic!==null?metricRow('Reticulocitos',retic.toFixed(1),'%',badge(retic,0.5,2.5)):''}
+      ${irc!==null?metricRow('IRC (aportado)',irc.toFixed(2),'',badge(irc,0,2)):''}
+      ${ircEff!==null&&irc===null?metricRow('IRC estimado',ircEff.toFixed(2),'',badge(ircEff,0,2)):''}
+    </table>${reticConcl}`;
+    html+=sectionCard('rcs-teal','Respuesta Medular — IRC','Regenerativa vs arregenerativa',reticMetrics,0.16);
+  }
+
+  /* ── FUNCIÓN RENAL ── */
+  if(tfg!==null){
+    const estadio=tfg<15?'5 (fallo renal)':tfg<30?'4 (grave)':tfg<60?'3 (moderada)':'≥3 conservada';
+    let renalConcl=tfg<60
+      ?`<div class="conclusion-box cc-red"><strong>ERC estadio ${estadio} — KDIGO.</strong> TFGe &lt;60: anemia renal por déficit relativo de EPO probable o contribuyente. ${ferritina!==null&&ferritina<200?'Ferritina &lt;200 ng/mL en ERC: corregir ferropenia antes de AEE (KDIGO 2012). ':''} Objetivo Hb con AEE: 10–11.5 g/dL — no superar 13 g/dL.</div>`
+      :`<div class="conclusion-box cc-green"><strong>TFGe conservada (≥60 mL/min).</strong> La etiología renal es improbable como causa primaria.</div>`;
+    let renalMetrics=`<table class="metric-table">
+      ${metricRow('Creatinina',creatinina.toFixed(2),'mg/dL',badge(creatinina,0,sexo==='F'?1.1:1.2))}
+      ${metricRow('TFGe (CKD-EPI 2021)',tfg,'mL/min/1.73m²',badge(tfg,60,999))}
+    </table>${renalConcl}`;
+    html+=sectionCard('rcs-navy','Función Renal — Módulo KDIGO','TFGe estimada por CKD-EPI 2021',renalMetrics,0.19);
+  }
+
+  /* ── VITAMINAS ── */
+  if(b12!==null||folato!==null){
+    let vitConcl='';
+    if(b12!==null&&b12<200&&morfVCM==='macrocitica') vitConcl+=`<div class="conclusion-box cc-red"><strong>Déficit de B12 con macrocitosis.</strong> Investigar anemia perniciosa (anti-FI, gastroscopia), malabsorción o dieta vegana. Neuropatía subaguda combinada debe descartarse y tratarse antes que el déficit de folato.</div>`;
+    if(folato!==null&&folato<3.0&&morfVCM==='macrocitica') vitConcl+=`<div class="conclusion-box cc-gold" style="margin-top:10px"><strong>Déficit de folato con macrocitosis.</strong> Confirmar ausencia de déficit de B12 coexistente antes de tratar con folato solo.</div>`;
+    if(!vitConcl) vitConcl=`<div class="conclusion-box cc-green"><strong>Vitaminas en rango normal</strong> o sin macrocitosis asociada. No se orienta hacia etiología megaloblástica.</div>`;
+    let vitMetrics=`<table class="metric-table">
+      ${b12!==null?metricRow('Vitamina B12',b12,'pg/mL',badge(b12,200,900)):''}
+      ${folato!==null?metricRow('Ácido fólico',folato.toFixed(1),'ng/mL',badge(folato,3.0,20)):''}
+    </table>${vitConcl}`;
+    html+=sectionCard('rcs-slate','Vitaminas — Eje Megaloblástico','B12 prioritaria sobre folato — BSH 2022',vitMetrics,0.21);
+  }
+
+  /* ── DDX ── */
+  const ddx=generarDDX(hb,vcm,hcm,rdw,ferritina,ist,morfVCM,b12,folato,tfg,retic,irc,mentzer,inflamacion,pcr);
+  if(ddx.length>0){
+    let ddxHtml='<div class="ddx-list">';
+    ddx.forEach((d,i)=>{ ddxHtml+=`<div class="ddx-item"><div class="ddx-rank dr-${i+1}">${i+1}</div><div><div class="ddx-diag">${d.diag}</div><div class="ddx-reason">${d.razon}</div></div></div>`; });
+    ddxHtml+='</div>';
+    html+=sectionCard('rcs-red','Diagnóstico Diferencial Jerarquizado','Ordenado por probabilidad según datos clínicos aportados',ddxHtml,0.24);
+  }
+
+  /* ── MANEJO ── */
+  const manejo=generarManejo(hb,vcm,ferritina,ist,morfVCM,b12,folato,tfg,sevAnemia,retic,irc,creatinina,ganzoni,embarazada,trimestre,inflamacion);
+  let manejoHtml='<div class="manejo-list">';
+  manejo.forEach((m,i)=>{ manejoHtml+=`<div class="manejo-item"><div class="manejo-num">${i+1}</div><div class="manejo-text">${m}</div></div>`; });
+  manejoHtml+=`</div><div class="guide-footer">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#94A3B8" stroke-width="1.2"/><path d="M6.5 4.5v2.5L8 8.5" stroke="#94A3B8" stroke-width="1.2" stroke-linecap="round"/></svg>
+    BSH Iron Deficiency 2021 · BSH Macrocytic Anaemia 2022 · OMS 2011 · KDIGO CKD Anaemia 2012/2024 · Ganzoni 1972
+  </div>`;
+  html+=sectionCard('rcs-teal','Orientación de Manejo','Pasos basados en guías clínicas de referencia',manejoHtml,0.28);
+
+  /* ── JUSTIFICACIÓN (Final de analizar) ── */
+  const justHtml=generarJustificacion(hb,vcm,rdw,ferritina,ist,morfVCM,b12,folato,tfg,sexo,mentzer,inflamacion,pcr,embarazada,trimestre);
+  html+=sectionCard('rcs-slate','Justificación Técnica — Motor ANEMIMETRIC®','Por qué se han aplicado estos criterios diagnósticos',justHtml,0.32);
+
+  const res=document.getElementById('results');
+  res.innerHTML=html; res.style.display='block';
+  setTimeout(()=>res.scrollIntoView({behavior:'smooth',block:'start'}),50);
+}
+
+/* ── DEFINICIÓN DE JUSTIFICACIÓN ── */
+function generarJustificacion(hb,vcm,rdw,ferritina,ist,morfVCM,b12,folato,tfg,sex,mentzer,inflamacion,pcr,emb,trim){
+  const items=[];
+  const txtEmb = emb ? 'En embarazo la hemodilucion fisiológica reduce la Hb basal. Umbral trimestral por OMS 2011: 1.º/3.º Trim &lt;11 g/dL, 2.º Trim &lt;10.5 g/dL. ' : '';
+  items.push(`<strong>Umbrales OMS ajustados:</strong> se aplica ${getHbThresholdLabel()}. ${txtEmb}La estratificación (leve/moderada/grave) determina urgencia del manejo.`);
+  if(ferritina!==null&&ist!==null) items.push(`<strong>Criterio compuesto BSH 2021 (Ferritina + IST):</strong> la BSH no usa Ferritina aislada. El criterio compuesto tiene mayor especificidad, especialmente en inflamación donde la Ferritina como reactante falsamente se normaliza. El rango 30–100 ng/mL con IST &lt;20% define déficit funcional — categoría ausente en guías más antiguas.`);
+  if(inflamacion) items.push(`<strong>Corrección por PCR (PCR=${pcr} mg/L &gt;5):</strong> con inflamación activa, la Ferritina se comporta como reactante de fase aguda y puede estar artificialmente elevada hasta 3–5× su valor real. Por ello, el criterio BSH aplica el patrón compuesto (Ferritina 30–100 + IST &lt;20%) para diagnosticar ferropenia funcional sin depender del valor absoluto de Ferritina.`);
+  if(mentzer!==null) items.push(`<strong>Índice de Mentzer (VCM/Hematíes = ${mentzer}):</strong> discriminador morfológico validado para distinguir ferropenia (>13, sensibilidad ~79%) de talasemia rasgo (<13, especificidad ~98%). Complementa el RDW en el diagnóstico diferencial de microcitosis. No sustituye al estudio molecular pero evita sobretratar con hierro en portadores de talasemia.`);
+  if(tfg!==null&&tfg<60) items.push(`<strong>Umbrales KDIGO en ERC:</strong> en insuficiencia renal, el umbral de Ferritina para ferropenia es 200 ng/mL (no 30 ng/mL), porque la eritropoyesis estimulada por AEE demanda más hierro funcional. El objetivo de Hb con AEE (10–11.5 g/dL) es conservador deliberadamente para evitar riesgo cardiovascular (KDIGO 2024 reafirma).`);
+  if(morfVCM==='macrocitica') items.push(`<strong>Prioridad B12 sobre folato (BSH 2022):</strong> el tratamiento con folato aislado puede corregir la macrocitosis sin resolver el déficit neurológico de B12, causando degeneración subaguda combinada de la médula espinal — secuela potencialmente irreversible. La BSH exige confirmar o descartar B12 antes de iniciar folato.`);
+
+  let html='<div class="manejo-list">';
+  items.forEach((txt,i)=>{
+    const letters=['A','B','C','D','E','F'];
+    html+=`<div class="manejo-item"><div class="manejo-num" style="background:rgba(26,43,74,.08);color:var(--navy);border-color:rgba(26,43,74,.15)">${letters[i]||i+1}</div><div class="manejo-text">${txt}</div></div>`;
+  });
+  html+='</div>';
+  return html;
+}
+
+/* ── DDX ENGINE ── */
+function generarDDX(hb,vcm,hcm,rdw,ferritina,ist,morfVCM,b12,folato,tfg,retic,irc,mentzer,inflamacion,pcr){
+  const ddx=[];
+  if(morfVCM==='microcitica'){
+    if(ferritina !== null && ferritina < 30)
+      ddx.push({diag:'Anemia ferropénica — déficit absoluto de hierro',razon:'Ferritina <30 ng/mL + IST <20%: criterio compuesto BSH 2021 positivo. Causa más frecuente de anemia microcítica hipocrómica.'});
+    else if(ferritina!==null&&ferritina>=30&&ferritina<=100&&ist!==null&&ist<20){
+      if(inflamacion) ddx.push({diag:'Ferropenia funcional sobre fondo inflamatorio (PCR elevada)',razon:`PCR ${pcr} mg/L eleva artificialmente la Ferritina. IST <20% confirma bloqueo de hierro. Criterio BSH ajustado por inflamación.`});
+      else ddx.push({diag:'Anemia de proceso inflamatorio / crónico (AIC)',razon:'Ferritina 30–100 + IST <20%: patrón BSH de bloqueo funcional por hepcidina.'});
+      ddx.push({diag:'Ferropenia sobre fondo inflamatorio',razon:'La inflamación eleva artificialmente la Ferritina enmascarando deplección real. PCR/VSG discriminadores.'});
+    } else if(ferritina!==null&&ferritina>100&&ist!==null&&ist<16)
+      ddx.push({diag:'Anemia de proceso crónico pura (AIC)',razon:'Ferritina elevada + IST bajo: bloqueo clásico de hepcidina. Investigar neoplasia, infección crónica, EII.'});
+    else{
+      if(mentzer!==null&&mentzer<13) ddx.push({diag:'Talasemia rasgo (alfa o beta)',razon:`Índice de Mentzer ${mentzer} (<13): alta sospecha de portador de talasemia. Microcitosis + RDW normal. Solicitar HPLC.`});
+      ddx.push({diag:'Anemia ferropénica',razon:'Completar cinética de hierro. Causa más frecuente de microcitosis.'});
+      ddx.push({diag:'Anemia sideroblástica',razon:'Si RDW muy elevado con dimorfismo eritrocitario sin ferropenia: considerar sideroblástica.'});
+    }
+  } else if(morfVCM==='macrocitica'){
+    if(b12!==null&&b12<200) ddx.push({diag:'Anemia megaloblástica por déficit de vitamina B12',razon:'B12 <200 pg/mL con macrocitosis: alta probabilidad. Anemia perniciosa, malabsorción, dieta vegana.'});
+    if(folato!==null&&folato<3.0) ddx.push({diag:'Anemia megaloblástica por déficit de folato',razon:'Folato <3 ng/mL con macrocitosis. Alcoholismo, desnutrición, malabsorción, antifolatos.'});
+    ddx.push({diag:'Síndrome mielodisplásico (SMD)',razon:'Macrocitosis persistente sin déficit vitamínico, especialmente >60 años. Requiere BOMO.'});
+    ddx.push({diag:'Hepatopatía / alcoholismo crónico',razon:'Macrocitosis sin megaloblastosis. Confirmar alcohol o marcadores hepáticos.'});
+  } else if(morfVCM==='normocitica'){
+    if(tfg!==null&&tfg<60) ddx.push({diag:'Anemia renal por déficit relativo de EPO',razon:`TFGe <60 mL/min/1.73m² (KDIGO). Estadio según CKD-EPI.`});
+    if(ferritina!==null&&ist!==null&&ferritina>100&&ist<20) ddx.push({diag:'Anemia de proceso crónico (AIC)',razon:'Perfil marcial de bloqueo inflamatorio con VCM normal.'});
+    const ircEff=irc||(retic&&hb?(retic*(hb/(sexo==='F'?14:15.5)))/2:null);
+    if(ircEff&&ircEff>=2){
+      ddx.push({diag:'Anemia hemolítica',razon:'IRC ≥2 con normocitosis: causa periférica. LDH, haptoglobina, Coombs directo, frotis.'});
+      ddx.push({diag:'Hemorragia aguda',razon:'Reticulocitosis con normocitosis en pérdida hemática reciente.'});
+    } else {
+      ddx.push({diag:'Anemia arregenerativa central',razon:'IRC <2: aplasia, infiltración medular, mielodisplasia. Valorar BOMO.'});
+    }
+  } else {
+    ddx.push({diag:'Anemia ferropénica (más frecuente)',razon:'Sin VCM disponible. Completar hemograma y cinética de hierro.'});
+    ddx.push({diag:'Anemia de proceso crónico',razon:'Segunda causa más frecuente. Requiere cinética de hierro completa.'});
+  }
+  return ddx.slice(0,4);
+}
+
+/* ── MANEJO ENGINE ── */
+function generarManejo(hb,vcm,ferritina,ist,morfVCM,b12,folato,tfg,sevAnemia,retic,irc,creat,ganzoni,emb,trim,inflamacion){
+  const p=[];
+  if(hb<7.0) p.push(`<strong>Valorar transfusión urgente.</strong> BSH: umbral transfusional Hb &lt;7 g/dL (sin cardiopatía isquémica). Solicitar pruebas cruzadas y grupo ABO/Rh. No diferir hasta resultado etiológico si hay compromiso hemodinámico.`);
+
+  const ferropenia_absoluta = (ferritina !== null && ferritina < 30);
+  const ferropenia_funcional=ferritina!==null&&ferritina>=30&&ferritina<=100&&ist!==null&&ist<20;
+
+  if(ferropenia_absoluta){
+    if(ganzoni) p.push(`<strong>Déficit total de hierro calculado (Ganzoni): ${ganzoni} mg.</strong> Programar hierro IV para reponer la dosis total calculada. Carboximaltosa férrica: máx. 1.000 mg/infusión (se puede administrar en dosis única si déficit ≤1.000 mg). Hierro isomaltósido: máx. 1.000 mg/dosis. Controlar Hb y Ferritina a las 4–8 semanas.`);
+    if(hb<8||emb) p.push(`<strong>Hierro IV — primera línea (BSH 2021${emb?', embarazo':''})</strong>. Hb &lt;8 g/dL${emb?' o gestante':''}: carboximaltosa férrica 500–1.000 mg en dosis única. ${emb?'Seguro a partir del 2.º trimestre. Evitar en 1.º trimestre si es posible.':''} Monitorizar a las 4–8 semanas.`);
+    else p.push(`<strong>Hierro oral — primera línea (BSH 2021).</strong> Sulfato ferroso 200 mg cada 48 horas (dosificación alterna: suprime hepcidina post-dosis). Duración ≥3 meses tras normalizar Hb. Tomar en ayunas con vitamina C. Ascenso esperado: &gt;1 g/dL cada 2 semanas.`);
+    p.push(`<strong>Cambiar a hierro IV si:</strong> intolerancia oral, malabsorción (EII, celiaquía, bypass gástrico), sangrado activo o sin respuesta a 4 semanas.`);
+    p.push(`<strong>Investigar etiología obligatoria (BSH):</strong> en adultos sin causa evidente, descartar pérdida digestiva oculta (colonoscopia/gastroscopia). En mujeres en edad fértil: valorar menorragia.`);
+  }
+
+  if(ferropenia_funcional){
+    if(inflamacion) p.push(`<strong>Déficit funcional + PCR elevada:</strong> tratar la causa inflamatoria subyacente. Si se confirma ferropenia coexistente, el hierro IV es preferible al oral (hepcidina elevada bloquea absorción intestinal). Evaluar respuesta al tratar el proceso inflamatorio antes de escalar.`);
+    else p.push(`<strong>Déficit funcional / AIC:</strong> tratar la enfermedad subyacente. Hierro IV si se confirma ferropenia coexistente (oral menos eficaz por hepcidina elevada). No iniciar hierro si IST &gt;20%.`);
+  }
+
+  if(morfVCM==='macrocitica'){
+    if(b12!==null&&b12<200) p.push(`<strong>Reposición de vitamina B12 (BSH 2022 — PRIORIDAD).</strong> Con síntomas neurológicos: cianocobalamina IM 1.000 µg diario ×7d → cada 48h ×3 sem → mensual de por vida. Sin síntomas: oral 1.000–2.000 µg/día. Confirmar causa: anti-factor intrínseco, test de Schilling si disponible, gastroscopia.`);
+    if(folato!==null&&folato<3.0) p.push(`<strong>Reposición de folato (BSH 2022 — tras descartar B12).</strong> Ácido fólico 5 mg/día oral ×4 meses. <em>Crítico:</em> nunca iniciar folato solo sin descartar déficit de B12 — riesgo de neuropatía subaguda combinada irreversible.`);
+    if((b12===null||b12>=200)&&(folato===null||folato>=3.0)) p.push(`<strong>Ampliar estudio de macrocitosis:</strong> TSH (hipotiroidismo), función hepática + GGT (hepatopatía/alcohol), revisión farmacológica (MTX, hidroxiurea, AZT, antiepilépticos). Macrocitosis persistente sin causa en &gt;60 años: aspirado/biopsia de MO para descartar SMD.`);
+  }
+
+  if(tfg!==null&&tfg<60) p.push(`<strong>Protocolo KDIGO — Anemia renal.</strong> 1) Corregir ferropenia primero (KDIGO: ferritina &lt;200 ng/mL o IST &lt;20% → hierro IV en ERC 3–5). 2) Si Hb &lt;10 g/dL tras corrección marcial: valorar AEE. 3) Objetivo Hb: 10–11.5 g/dL. No superar 13 g/dL (riesgo trombótico/CV, KDIGO 2024).`);
+
+  if(p.length===0) p.push(`Datos insuficientes para pauta específica. Complete cinética de hierro y VCM. Si anemia leve sin causa: TSH, estudio marcial completo y valorar BOMO si persiste.`);
+  return p;
+}
+
+/* ── JUSTIFICACIÓN ── */
+function generarJustificacion(hb,vcm,rdw,ferritina,ist,morfVCM,b12,folato,tfg,sex,mentzer,inflamacion,pcr,emb,trim){
+  const items=[];
+  items.push(`<strong>Umbrales OMS ajustados:</strong> se aplica ${getHbThresholdLabel()}. ${emb?`En embarazo la hemodilucion fisiológica reduce la Hb basal. Umbral trimestral por OMS 2011: 1.º/3.º Trim &lt;11 g/dL, 2.º Trim &lt;10.5 g/dL. `:''} La estratificación (leve/moderada/grave) determina urgencia del manejo.`);
+  if(ferritina!==null&&ist!==null) items.push(`<strong>Criterio compuesto BSH 2021 (Ferritina + IST):</strong> la BSH no usa Ferritina aislada. El criterio compuesto tiene mayor especificidad, especialmente en inflamación donde la Ferritina como reactante falsamente se normaliza. El rango 30–100 ng/mL con IST &lt;20% define déficit funcional — categoría ausente en guías más antiguas.`);
+  if(inflamacion) items.push(`<strong>Corrección por PCR (PCR=${pcr} mg/L &gt;5):</strong> con inflamación activa, la Ferritina se comporta como reactante de fase aguda y puede estar artificialmente elevada hasta 3–5× su valor real. Por ello, el criterio BSH aplica el patrón compuesto (Ferritina 30–100 + IST &lt;20%) para diagnosticar ferropenia funcional sin depender del valor absoluto de Ferritina.`);
+  if(mentzer!==null) items.push(`<strong>Índice de Mentzer (VCM/Hematíes = ${mentzer}):</strong> discriminador morfológico validado para distinguir ferropenia (>13, sensibilidad ~79%) de talasemia rasgo (<13, especificidad ~98%). Complementa el RDW en el diagnóstico diferencial de microcitosis. No sustituye al estudio molecular pero evita sobretratar con hierro en portadores de talasemia.`);
+  if(tfg!==null&&tfg<60) items.push(`<strong>Umbrales KDIGO en ERC:</strong> en insuficiencia renal, el umbral de Ferritina para ferropenia es 200 ng/mL (no 30 ng/mL), porque la eritropoyesis estimulada por AEE demanda más hierro funcional. El objetivo de Hb con AEE (10–11.5 g/dL) es conservador deliberadamente para evitar riesgo cardiovascular (KDIGO 2024 reafirma).`);
+  if(morfVCM==='macrocitica') items.push(`<strong>Prioridad B12 sobre folato (BSH 2022):</strong> el tratamiento con folato aislado puede corregir la macrocitosis sin resolver el déficit neurológico de B12, causando degeneración subaguda combinada de la médula espinal — secuela potencialmente irreversible. La BSH exige confirmar o descartar B12 antes de iniciar folato.`);
+
+  let html='<div class="manejo-list">';
+  items.forEach((txt,i)=>{
+    const letters=['A','B','C','D','E','F'];
+    html+=`<div class="manejo-item"><div class="manejo-num" style="background:rgba(26,43,74,.08);color:var(--navy);border-color:rgba(26,43,74,.15)">${letters[i]||i+1}</div><div class="manejo-text">${txt}</div></div>`;
+  });
+  html+='</div>';
+  return html;
+}
+
+/* ── RESET ── */
+function resetForm(){
+  const ids=['hb','vcm','hcm','rdw','hematies','hematocrito','ferritina','hierro','tibc','ist','pcr','transferrina','retic','irc','creatinina','b12','folato','edad','peso'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.classList.remove('has-value')}});
+  setEmbarazo(false);
+  document.getElementById('mentzer-live-wrap').style.display='none';
+  document.getElementById('ist-live-wrap').style.display='none';
+  document.getElementById('ganzoni-live-card').style.display='none';
+  const r=document.getElementById('results');
+  r.style.transition='opacity .25s';r.style.opacity='0';
+  setTimeout(()=>{r.innerHTML='';r.style.display='none';r.style.opacity='';r.style.transition='';},280);
+}
+</script>
+</body>
+</html>
