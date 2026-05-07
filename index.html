@@ -56,7 +56,11 @@
 
     main {
       width: 100%;
-      max-width: 500px;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 25px;
+      justify-content: center;
     }
 
     .app-card {
@@ -137,6 +141,15 @@
         Acceso directo al directorio de trabajo actual para verificar el diseño y funcionalidad de la aplicación.
       </div>
       <div class="btn-enter">Abrir prototipo</div>
+    </a>
+
+    <a href="prueba2/index.html" class="app-card">
+      <div class="app-icon">🚀</div>
+      <div class="app-title">Prueba 2</div>
+      <div class="app-desc">
+        Espacio reservado para la nueva aplicación. Configuración y despliegue del segundo entorno de desarrollo.
+      </div>
+      <div class="btn-enter">Próximamente</div>
     </a>
   </main>
 
