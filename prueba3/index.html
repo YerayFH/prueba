@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IV Compat Checker — UCI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ══ RESET ══ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { background: #0a0d14; font-family: 'Syne', sans-serif; color: #e8eaf0; min-height: 100vh; }
+
+    :root {
+      --c:      #00e5a0;
+      --i:      #ff3d5a;
+      --v:      #ffb700;
+      --sd:     #8892aa;
+      --sv:     #e03030;
+      --bg0:    #0a0d14;
+      --bg1:    #111520;
+      --bg2:    #181d2e;
+      --bg3:    #1f2640;
+      --bdr:    rgba(255,255,255,0.08);
+      --accent: #5b8aff;
+      --npt:    #b06aff;
+      --hh:     58px;
+    }
+
+    /* ══ GLOBAL HEADER ══ */
+    .g-header {
+      height: var(--hh);
+      background: linear-gradient(135deg,#0d1929 0%,#111520 100%);
+      border-bottom: 1px solid var(--bdr);
+      padding: 0 1.25rem;
+      display: flex; align-items: center; gap: 0.85rem;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .g-icon {
+      width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+      background: linear-gradient(135deg,#1a3a6e,#2a5ab8);
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .g-title  { font-size: 1rem; font-weight: 800; letter-spacing: -.02em; color: #fff; white-space: nowrap; }
+    .g-sub    { font-size: 0.57rem; color: var(--sd); font-family: 'JetBrains Mono',monospace; margin-top: 1px; white-space: nowrap; }
+    .g-badge  {
+      margin-left: auto; flex-shrink: 0;
+      background: rgba(91,138,255,.1); border: 1px solid rgba(91,138,255,.28);
+      color: var(--accent); font-size: 0.57rem; padding: 2px 9px; border-radius: 20px;
+      font-family: 'JetBrains Mono',monospace; white-space: nowrap;
+    }
+
+    /* ══════════════════════════════════════════════
+       DESKTOP LAYOUT  (> 800px)
+       Two-column grid: sidebar left, panel right
+    ══════════════════════════════════════════════ */
+    .layout {
+      display: grid;
+      grid-template-columns: 275px 1fr;
+      min-height: calc(100vh - var(--hh));
+      align-items: start;
+    }
+
+    /* ── Sidebar (desktop sticky) ── */
+    .sidebar {
+      background: var(--bg1);
+      border-right: 1px solid var(--bdr);
+      position: sticky;
+      top: var(--hh);
+      height: calc(100vh - var(--hh));
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-inner {
+      flex: 1; overflow-y: auto; padding: 1rem;
+      display: flex; flex-direction: column; gap: 0.85rem;
+    }
+    .sidebar-inner::-webkit-scrollbar { width: 3px; }
+    .sidebar-inner::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 2px; }
+
+    /* ── Panel (desktop scrollable) ── */
+    .panel {
+      padding: 1.25rem 1.5rem;
+      overflow-y: auto;
+      min-height: calc(100vh - var(--hh));
+    }
+    .panel::-webkit-scrollbar { width: 4px; }
+    .panel::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 2px; }
+
+    /* ══════════════════════════════════════════════
+       MOBILE LAYOUT  (≤ 800px)
+       Single column, natural vertical flow.
+       NO hamburger. NO off-canvas. NO overlay.
+       Selector area sits on top, results flow below.
+    ══════════════════════════════════════════════ */
+    @media (max-width: 800px) {
+
+      .layout {
+        grid-template-columns: 1fr;  /* single column */
+        min-height: unset;
+      }
+
+      /* Sidebar becomes a normal block at the top of the page */
+      .sidebar {
+        position: static;           /* no sticky, no fixed */
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--bdr);
+        overflow: visible;
+      }
+      .sidebar-inner {
+        overflow-y: visible;
+        padding: 0.9rem;
+      }
+
+      /* Panel flows below naturally */
+      .panel {
+        padding: 0.9rem;
+        min-height: unset;
+        overflow-y: visible;
+      }
+
+      /* Fluido grid full width on mobile */
+      .fluido-grid { grid-template-columns: repeat(2,1fr); }
+
+      /* Larger tap targets */
+      .drug-btn  { min-height: 46px; font-size: 0.82rem; }
+      .fluido-btn{ min-height: 52px; }
+      .btn-sm    { height: 40px; font-size: 0.73rem; }
+      .rrow      { padding: 0.72rem 0.88rem; }
+      .rdrug     { font-size: 0.88rem; }
+      .rnote     { font-size: 0.8rem; }
+
+      /* Y-site single column */
+      .ygrid { grid-template-columns: 1fr; }
+
+      /* Legend scrolls horizontally instead of wrapping */
+      .legend { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .legend::-webkit-scrollbar { height: 0; }
+
+      /* Header: hide subtitle on very small screens */
+      .g-sub   { display: none; }
+      .g-badge { display: none; }
+    }
+
+    /* ══ SHARED SIDEBAR / SELECTION COMPONENTS ══ */
+
+    .section-label {
+      font-size: 0.56rem; font-weight: 700; letter-spacing: .13em;
+      text-transform: uppercase; color: var(--sd); margin-bottom: 0.45rem;
+    }
+
+    /* Fluido grid */
+    .fluido-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 0.4rem; }
+    .npt-wrap    { grid-column: span 2; }
+    .fluido-btn  {
+      min-height: 50px; padding: 0.4rem 0.3rem; border-radius: 8px;
+      border: 1.5px solid var(--bdr); background: var(--bg2); color: #bfc8dd;
+      font-family: 'JetBrains Mono',monospace; font-size: 0.69rem;
+      cursor: pointer; transition: all .14s; text-align: center; line-height: 1.3;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;
+    }
+    .fluido-btn:hover   { border-color: var(--accent); color: var(--accent); }
+    .fluido-btn.active  { background: rgba(91,138,255,.13); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+    .fluido-btn.is-npt  { flex-direction: row; gap: .55rem; border-color: rgba(176,106,255,.22); color: #c49aff; }
+    .fluido-btn.is-npt.active { background: rgba(176,106,255,.12); border-color: var(--npt); color: var(--npt); }
+    .f-short { font-weight: 700; font-size: 0.73rem; }
+    .f-long  { font-size: 0.54rem; opacity: .7; margin-top: 2px; }
+
+    /* Search */
+    .search-wrap { position: relative; }
+    .search-input {
+      width: 100%; min-height: 44px; padding: .55rem 2rem .55rem 2rem;
+      background: var(--bg2); border: 1px solid var(--bdr); border-radius: 7px;
+      color: #e8eaf0; font-family: 'Syne',sans-serif; font-size: 0.82rem;
+      outline: none; transition: border-color .14s; -webkit-appearance: none;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-icon  { position: absolute; left: .62rem; top: 50%; transform: translateY(-50%); color: var(--sd); font-size: .8rem; pointer-events: none; }
+    .search-clear {
+      position: absolute; right: .6rem; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--sd); cursor: pointer;
+      font-size: .9rem; padding: 4px; display: none; line-height: 1;
+      min-width: 24px; min-height: 24px;
+    }
+    .search-clear.visible { display: block; }
+
+    /* Accordion */
+    .accordion { border: 1px solid var(--bdr); border-radius: 7px; overflow: hidden; margin-bottom: .32rem; }
+    .acc-hdr {
+      width: 100%; min-height: 44px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .46rem .75rem; background: var(--bg2); border: none; cursor: pointer;
+      color: #bfc8dd; font-family: 'Syne',sans-serif; font-size: .67rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+      transition: background .12s; text-align: left;
+    }
+    .acc-hdr:hover, .acc-hdr.open { background: var(--bg3); color: #fff; }
+    .acc-meta { display: flex; align-items: center; gap: .38rem; flex-shrink: 0; }
+    .acc-badge {
+      font-size: .55rem; background: var(--bg3); border: 1px solid var(--bdr);
+      border-radius: 10px; padding: 1px 6px; color: var(--sd);
+      font-family: 'JetBrains Mono',monospace; white-space: nowrap;
+    }
+    .acc-badge.has { background: rgba(0,229,160,.1); border-color: rgba(0,229,160,.28); color: var(--c); }
+    .acc-arrow { font-size: .54rem; transition: transform .2s; color: var(--sd); display: inline-block; }
+    .acc-arrow.open { transform: rotate(180deg); }
+    .acc-body { display: none; }
+    .acc-body.open { display: block; padding: .18rem 0; }
+
+    .drug-btn {
+      width: 100%; min-height: 44px; text-align: left; padding: .44rem .75rem;
+      border: none; background: transparent; color: #9ba8c0;
+      font-family: 'Syne',sans-serif; font-size: .79rem;
+      cursor: pointer; transition: background .1s,color .1s;
+      display: flex; align-items: center; gap: .45rem;
+    }
+    .drug-btn:hover  { background: var(--bg3); color: #fff; }
+    .drug-btn.sel    { background: rgba(0,229,160,.08); color: var(--c); }
+    .dcheck {
+      width: 15px; height: 15px; border-radius: 3px; flex-shrink: 0;
+      border: 1.5px solid var(--bdr); display: flex; align-items: center;
+      justify-content: center; font-size: .55rem; background: var(--bg2); line-height: 1;
+    }
+    .drug-btn.sel .dcheck { background: var(--c); border-color: var(--c); color: #000; font-weight: 800; }
+
+    /* ══ PANEL COMPONENTS ══ */
+
+    /* Empty state */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 3.5rem 1.5rem;
+      text-align: center; gap: 1.5rem; min-height: 40vh;
+    }
+    .empty-icon { font-size: 2.6rem; opacity: .22; }
+    .empty-state h3 { font-size: 1rem; font-weight: 700; color: #5b6680; }
+    .empty-steps { display: flex; flex-direction: column; gap: .7rem; text-align: left; max-width: 320px; }
+    .empty-step  { display: flex; align-items: flex-start; gap: .7rem; font-size: .82rem; color: #6a7890; line-height: 1.55; }
+    .step-num {
+      min-width: 24px; height: 24px; border-radius: 50%;
+      background: var(--bg3); border: 1px solid var(--bdr);
+      color: var(--accent); font-size: .68rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* Topbar */
+    .topbar { display: flex; align-items: flex-start; gap: .6rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .chips-wrap { display: flex; flex-wrap: wrap; gap: .3rem; flex: 1; align-items: center; min-height: 36px; }
+    .chip {
+      display: flex; align-items: center; gap: .28rem;
+      background: var(--bg2); border: 1px solid var(--bdr);
+      border-radius: 20px; padding: .22rem .5rem .22rem .72rem;
+      font-size: .73rem; color: #e8eaf0;
+    }
+    .chip-x {
+      background: none; border: none; color: var(--sd); cursor: pointer;
+      font-size: .8rem; padding: 2px; line-height: 1; transition: color .12s;
+      min-width: 20px; min-height: 20px; display: flex; align-items: center; justify-content: center;
+    }
+    .chip-x:hover { color: var(--i); }
+    .btn-sm {
+      background: none; border: 1px solid var(--bdr); border-radius: 7px;
+      font-size: .72rem; cursor: pointer; transition: all .15s;
+      font-family: 'Syne',sans-serif; white-space: nowrap;
+      padding: 0 .85rem; height: 36px; color: var(--sd);
+      display: flex; align-items: center; gap: .3rem;
+    }
+    .btn-sm:hover    { border-color: var(--i); color: var(--i); }
+    .btn-copy        { color: var(--accent); border-color: rgba(91,138,255,.3); }
+    .btn-copy:hover  { background: rgba(91,138,255,.1); color: var(--accent); border-color: var(--accent); }
+    .btn-copy.copied { color: var(--c); border-color: rgba(0,229,160,.4); }
+
+    /* Legend */
+    .legend {
+      display: flex; gap: .8rem; flex-wrap: wrap; margin-bottom: .8rem;
+      padding: .55rem .9rem; background: var(--bg1);
+      border: 1px solid var(--bdr); border-radius: 7px; align-items: center;
+    }
+    .leg-item { display: flex; align-items: center; gap: .32rem; font-size: .68rem; color: var(--sd); }
+    .ldot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+    .ldot.C      { background: var(--c); }
+    .ldot.I      { background: var(--i); }
+    .ldot.V      { background: var(--v); }
+    .ldot.SD     { background: var(--sd); }
+    .ldot.SEVERE { background: var(--sv); }
+
+    /* Stat pills */
+    .stats { display: flex; gap: .45rem; flex-wrap: wrap; margin-bottom: .9rem; }
+    .spill { padding: .28rem .8rem; border-radius: 20px; font-size: .68rem; font-family: 'JetBrains Mono',monospace; font-weight: 500; }
+    .spill.C  { background: rgba(0,229,160,.1);   color: var(--c); }
+    .spill.I  { background: rgba(255,61,90,.1);    color: var(--i); }
+    .spill.V  { background: rgba(255,183,0,.1);    color: var(--v); }
+    .spill.SD { background: rgba(136,146,170,.1);  color: var(--sd); }
+    .spill.SV { background: rgba(224,48,48,.12);   color: var(--sv); }
+
+    /* Cards */
+    .card { background: var(--bg1); border: 1px solid var(--bdr); border-radius: 11px; overflow: hidden; margin-bottom: .85rem; }
+    .card-hdr { padding: .8rem 1.1rem; border-bottom: 1px solid var(--bdr); display: flex; align-items: center; gap: .7rem; }
+    .card-hdr-icon { font-size: 1rem; flex-shrink: 0; }
+    .card-hdr-text h3   { font-size: .88rem; font-weight: 700; color: #fff; }
+    .card-hdr-text span { font-size: .65rem; color: var(--sd); font-family: 'JetBrains Mono',monospace; }
+    .card-body { padding: .85rem 1rem; display: flex; flex-direction: column; gap: .45rem; }
+
+    /* Result rows */
+    .rrow {
+      display: flex; align-items: flex-start; gap: .7rem;
+      padding: .65rem .85rem; border-radius: 8px; border: 1px solid transparent;
+    }
+    .rrow.C      { background: rgba(0,229,160,.05);    border-color: rgba(0,229,160,.16); }
+    .rrow.I      { background: rgba(255,61,90,.055);   border-color: rgba(255,61,90,.2); }
+    .rrow.V      { background: rgba(255,183,0,.05);    border-color: rgba(255,183,0,.16); }
+    .rrow.SD     { background: rgba(136,146,170,.04);  border-color: rgba(136,146,170,.1); }
+    .rrow.SEVERE { background: rgba(139,0,0,.12); border-color: rgba(224,48,48,.38); animation: pulseR 3s ease-in-out infinite; }
+
+    @keyframes pulseR {
+      0%,100% { border-color: rgba(224,48,48,.38); box-shadow: none; }
+      50%      { border-color: rgba(224,48,48,.65); box-shadow: 0 0 0 2px rgba(224,48,48,.1); }
+    }
+
+    .sbadge {
+      min-width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono',monospace; font-weight: 700; font-size: .63rem; margin-top: 1px;
+    }
+    .sbadge.C      { background: rgba(0,229,160,.14); color: var(--c); }
+    .sbadge.I      { background: rgba(255,61,90,.14);  color: var(--i); }
+    .sbadge.V      { background: rgba(255,183,0,.14);  color: var(--v); }
+    .sbadge.SD     { background: rgba(136,146,170,.1); color: var(--sd); }
+    .sbadge.SEVERE { background: rgba(139,0,0,.28);    color: var(--sv); font-size: .95rem; }
+
+    .rinfo { flex: 1; min-width: 0; }
+    .rdrug { font-size: .84rem; font-weight: 700; color: #e8eaf0; line-height: 1.3; }
+    .rdrug.sev { color: var(--sv); }
+    .rnote { font-size: .77rem; color: #8fa0b8; margin-top: 3px; line-height: 1.5; }
+    .rref  { font-size: .63rem; color: #4f5f7a; font-family: 'JetBrains Mono',monospace; margin-top: 4px; }
+
+    .ygrid { display: grid; grid-template-columns: repeat(auto-fill,minmax(258px,1fr)); gap: .42rem; }
+
+    /* Banners */
+    .npt-banner {
+      padding: .7rem 1rem; border-radius: 8px; margin-bottom: .8rem;
+      background: rgba(176,106,255,.07); border: 1px solid rgba(176,106,255,.22);
+      font-size: .74rem; color: #c49aff; line-height: 1.55;
+    }
+    .npt-banner strong { color: var(--npt); }
+    .severe-banner {
+      padding: .75rem 1rem; border-radius: 8px; margin-bottom: .8rem;
+      background: rgba(139,0,0,.13); border: 1px solid rgba(224,48,48,.35);
+      font-size: .75rem; color: #ffb3b3; line-height: 1.55;
+      animation: pulseR 3s ease-in-out infinite;
+    }
+    .severe-banner strong { color: #ff6060; }
+    .severe-banner ul { margin-top: .4rem; padding-left: 1.2rem; }
+    .severe-banner li { margin-bottom: .2rem; }
+
+    /* Disclaimer */
+    .disclaimer {
+      margin-top: 1.4rem; padding: .8rem 1rem;
+      background: rgba(255,183,0,.04); border: 1px solid rgba(255,183,0,.18);
+      border-radius: 8px; font-size: .71rem; color: #8892aa; line-height: 1.65;
+    }
+    .disclaimer strong { color: var(--v); }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 1.4rem; right: 1.4rem;
+      background: var(--bg3); border: 1px solid rgba(0,229,160,.28);
+      color: var(--c); padding: .55rem 1.1rem; border-radius: 8px;
+      font-size: .75rem; font-family: 'JetBrains Mono',monospace;
+      opacity: 0; pointer-events: none; transition: opacity .22s,transform .22s;
+      transform: translateY(8px); z-index: 300;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="g-header">
+  <div class="g-icon">💉</div>
+  <div>
+    <div class="g-title">IV Compat Checker — UCI</div>
+    <div class="g-sub">Trissel's 19ª · Stabilis 4.0 · Micromedex · King Guide</div>
+  </div>
+  <span class="g-badge">v4.0 · Solo uso orientativo</span>
+</header>
+
+<!-- LAYOUT: sidebar on left (desktop) / top (mobile), panel on right / below -->
+<div class="layout">
+
+  <!-- SELECTION AREA -->
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <div>
+        <div class="section-label">① Fluido base</div>
+        <div class="fluido-grid" id="fluido-grid"></div>
+      </div>
+
+      <div>
+        <div class="section-label">② Fármaco(s) — dilución y Y-site</div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" id="search-input"
+                 placeholder="Buscar fármaco o grupo…"
+                 autocomplete="off" spellcheck="false"/>
+          <button class="search-clear" id="search-clear" aria-label="Borrar búsqueda">✕</button>
+        </div>
+      </div>
+
+      <div id="accordion-container"></div>
+
+    </div>
+  </aside>
+
+  <!-- RESULTS AREA -->
+  <main class="panel" id="panel">
+
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">⚗️</div>
+      <h3>Consulta de compatibilidad IV</h3>
+      <div class="empty-steps">
+        <div class="empty-step">
+          <div class="step-num">1</div>
+          <span>Elige un <strong style="color:#c4cde0">fluido base</strong> — SF, SG5%, RL, Plasmalyte o NPT.</span>
+        </div>
+        <div class="empty-step">
+          <div class="step-num">2</div>
+          <span>Selecciona <strong style="color:#c4cde0">uno o más fármacos</strong>. Con un fármaco verás compatibilidad de dilución; con dos o más, también Y-site.</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="results" style="display:none"></div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast">✓ Resumen copiado al portapapeles</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ══════════════════════════════════════════
+   DATABASE
+══════════════════════════════════════════ */
+const FLUIDOS = [
+  {id:'nacl09', label:'NaCl 0.9%',           short:'SF'},
+  {id:'sg5',    label:'Glucosa 5%',           short:'SG5'},
+  {id:'rl',     label:'Ringer Lactato',       short:'RL'},
+  {id:'plasma', label:'Plasmalyte',           short:'PLY'},
+  {id:'npt',    label:'Nutrición Parenteral', short:'NPT'},
+];
+
+const FARMACOS = [
+  // Sedoanalgesia
+  {id:'propofol',         label:'Propofol',            grupo:'Sedoanalgesia'},
+  {id:'midazolam',        label:'Midazolam',           grupo:'Sedoanalgesia'},
+  {id:'fentanilo',        label:'Fentanilo',           grupo:'Sedoanalgesia'},
+  {id:'remifentanilo',    label:'Remifentanilo',       grupo:'Sedoanalgesia'},
+  {id:'morfina',          label:'Morfina',             grupo:'Sedoanalgesia'},
+  {id:'dexmedetomidina',  label:'Dexmedetomidina',     grupo:'Sedoanalgesia'},
+  {id:'ketamina',         label:'Ketamina',            grupo:'Sedoanalgesia'},
+  // Relajantes NM
+  {id:'rocuronio',        label:'Rocuronio',           grupo:'Relajantes NM'},
+  {id:'cisatracurio',     label:'Cisatracurio',        grupo:'Relajantes NM'},
+  // Vasoactivos
+  {id:'noradrenalina',    label:'Noradrenalina',       grupo:'Vasoactivos'},
+  {id:'adrenalina',       label:'Adrenalina',          grupo:'Vasoactivos'},
+  {id:'dopamina',         label:'Dopamina',            grupo:'Vasoactivos'},
+  {id:'dobutamina',       label:'Dobutamina',          grupo:'Vasoactivos'},
+  {id:'vasopresina',      label:'Vasopresina',         grupo:'Vasoactivos'},
+  // Cardiovascular
+  {id:'amiodarona',       label:'Amiodarona',          grupo:'Cardiovascular'},
+  {id:'esmolol',          label:'Esmolol',             grupo:'Cardiovascular'},
+  {id:'labetalol',        label:'Labetalol',           grupo:'Cardiovascular'},
+  {id:'nitroglicerina',   label:'Nitroglicerina',      grupo:'Cardiovascular'},
+  {id:'nitroprusiato',    label:'Nitroprusiato',       grupo:'Cardiovascular'},
+  {id:'nicardipino',      label:'Nicardipino',         grupo:'Cardiovascular'},  // NEW
+  {id:'clevidipino',      label:'Clevidipino',         grupo:'Cardiovascular'},  // NEW
+  // Neurológico
+  {id:'fenitoina',        label:'Fenitoína',           grupo:'Neurológico'},
+  {id:'levetiracetam',    label:'Levetiracetam',       grupo:'Neurológico'},
+  {id:'acido_valproico',  label:'Ácido Valproico',     grupo:'Neurológico'},
+  // Antibióticos
+  {id:'meropenem',        label:'Meropenem',           grupo:'Antibióticos'},
+  {id:'pip_tazo',         label:'Pip/Tazobactam',      grupo:'Antibióticos'},
+  {id:'vancomicina',      label:'Vancomicina',         grupo:'Antibióticos'},
+  {id:'linezolid',        label:'Linezolid',           grupo:'Antibióticos'},
+  {id:'ceftriaxona',      label:'Ceftriaxona',         grupo:'Antibióticos'},
+  {id:'cefepime',         label:'Cefepime',            grupo:'Antibióticos'},
+  // Antifúngicos
+  {id:'caspofungina',     label:'Caspofungina',        grupo:'Antifúngicos'},
+  {id:'fluconazol',       label:'Fluconazol',          grupo:'Antifúngicos'},
+  // Electrolitos
+  {id:'clk',              label:'Cloruro Potásico',    grupo:'Electrolitos'},
+  {id:'mgso4',            label:'Sulfato de Magnesio', grupo:'Electrolitos'},
+  {id:'gluconato_ca',     label:'Gluconato Cálcico',   grupo:'Electrolitos'},
+  // Corticosteroides
+  {id:'metilprednisolona',label:'Metilprednisolona',   grupo:'Corticosteroides'},
+  {id:'dexametasona',     label:'Dexametasona',        grupo:'Corticosteroides'},
+  {id:'hidrocortisona',   label:'Hidrocortisona',      grupo:'Corticosteroides'},
+  // Otros
+  {id:'furosemida',       label:'Furosemida',          grupo:'Diuréticos'},
+  {id:'heparina',         label:'Heparina',            grupo:'Anticoagulantes'},
+  {id:'insulina',         label:'Insulina Regular',    grupo:'Metabólicos'},
+  {id:'pantoprazol',      label:'Pantoprazol',         grupo:'IBP'},
+];
+
+/* ── Compatibilidad fármaco–fluido ── */
+const CF = {
+  propofol:         {nacl09:'I', sg5:'C', rl:'I', plasma:'SD',npt:'I',  nota:'Solo diluir en SG5%. Emulsión lipídica incompatible con SF. No mezclar con NPT. Conservar cadena de frío.',ref:'Trissel 19ª'},
+  midazolam:        {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'SD', nota:'Estable en todos los fluidos estándar. Proteger de la luz. Sin datos en NPT.',ref:'Trissel 19ª'},
+  fentanilo:        {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'SD', nota:'Alta estabilidad en todos los fluidos. Sin datos en NPT.',ref:'Trissel 19ª'},
+  remifentanilo:    {nacl09:'C', sg5:'C', rl:'SD',plasma:'SD',npt:'I',  nota:'Reconstituir en SF o SG5%. No mezclar con RL (datos limitados) ni con NPT.',ref:'Trissel 19ª'},
+  morfina:          {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'SD', nota:'Alta estabilidad general. Incompatible con aminofilina y fenobarbital. Sin datos en NPT.',ref:'Trissel 19ª'},
+  dexmedetomidina:  {nacl09:'C', sg5:'SD',rl:'SD',plasma:'SD',npt:'I',  nota:'Ficha técnica: dilución exclusiva en SF 0.9%. No añadir a NPT.',ref:'Ficha técnica / Stabilis'},
+  ketamina:         {nacl09:'C', sg5:'C', rl:'C', plasma:'SD',npt:'SD', nota:'Compatible en SF, SG5% y RL. No mezclar con barbitúricos. Sin datos en NPT.',ref:'Trissel 19ª'},
+  rocuronio:        {nacl09:'C', sg5:'C', rl:'C', plasma:'SD',npt:'I',  nota:'Compatible en SF, SG5% y RL. Estabilidad 24h. No añadir a NPT.',ref:'Stabilis 4.0'},
+  cisatracurio:     {nacl09:'C', sg5:'C', rl:'SD',plasma:'SD',npt:'I',  nota:'Estable en SF y SG5%. Sensible a pH alcalino. No añadir a NPT. Conservar en frío.',ref:'Stabilis 4.0'},
+  noradrenalina:    {nacl09:'C', sg5:'C', rl:'I', plasma:'SD',npt:'I',  nota:'Evitar RL: degradación por iones Ca²⁺. Preferir SF o SG5%. No en NPT.',ref:'Trissel 19ª'},
+  adrenalina:       {nacl09:'C', sg5:'C', rl:'I', plasma:'SD',npt:'I',  nota:'Inestable en soluciones alcalinas. RL desaconsejado. No añadir a NPT.',ref:'Trissel 19ª'},
+  dopamina:         {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'I',  nota:'Compatible con fluidos estándar. Incompatible con bicarbonato. No añadir a NPT.',ref:'Trissel 19ª'},
+  dobutamina:       {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'I',  nota:'Estable en todos los fluidos estándar 24-48h. No añadir a NPT.',ref:'Trissel 19ª'},
+  vasopresina:      {nacl09:'C', sg5:'C', rl:'SD',plasma:'SD',npt:'SD', nota:'Preferiblemente en SF o SG5%. Sin datos suficientes en RL, Plasmalyte y NPT.',ref:'Stabilis 4.0'},
+  amiodarona:       {nacl09:'I', sg5:'C', rl:'I', plasma:'SD',npt:'I',  nota:'⚠️ SOLO en SG5%. SF y RL causan precipitación. Vía central o periférica ≥18G. Fototóxico.',ref:'Trissel 19ª'},
+  esmolol:          {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'SD', nota:'Compatible en todos los fluidos estándar. No mezclar con bicarbonato. Sin datos en NPT.',ref:'Trissel 19ª'},
+  labetalol:        {nacl09:'C', sg5:'I', rl:'SD',plasma:'SD',npt:'I',  nota:'Incompatible con SG5% (precipitación). Usar exclusivamente en SF.',ref:'Trissel 19ª'},
+  nitroglicerina:   {nacl09:'C', sg5:'C', rl:'SD',plasma:'SD',npt:'I',  nota:'Compatible en SF y SG5%. Adsorción en PVC: usar equipos sin PVC. Fotosensible.',ref:'Trissel 19ª'},
+  nitroprusiato:    {nacl09:'SD',sg5:'C', rl:'SD',plasma:'SD',npt:'I',  nota:'Exclusivamente en SG5%. Extremadamente fotosensible: cubrir solución y equipo siempre.',ref:'Trissel 19ª'},
+  // ── NICARDIPINO ──
+  nicardipino:      {nacl09:'C', sg5:'C', rl:'I', plasma:'I', npt:'I',
+    nota:'Compatible en SF y SG5%. Incompatible con RL y Plasmalyte (contienen calcio; riesgo de precipitación). No añadir a NPT. Fototosensible: proteger de la luz directa. Concentración habitual 0.1 mg/mL; evitar concentraciones >0.5 mg/mL en periférica.',
+    ref:'Trissel 19ª / Stabilis 4.0'},
+  // ── CLEVIDIPINO ──
+  clevidipino:      {nacl09:'I', sg5:'I', rl:'I', plasma:'I', npt:'I',  severe:true,
+    nota:'☠️ EMULSIÓN LIPÍDICA AL 20%: administrar EXCLUSIVAMENTE sin diluir de su vial original, en vía dedicada. No mezclar con ningún fármaco ni fluido (rotura de emulsión). Incompatible con todos los fluidos para dilución. No compatible con NPT. Mismas precauciones microbiológicas que propofol (descartar vial sobrante a las 4h de apertura).',
+    ref:'Ficha técnica Clevidipino / Trissel 19ª'},
+  fenitoina:        {nacl09:'C', sg5:'I', rl:'I', plasma:'I', npt:'I',  nota:'⚠️ SOLO en SF 0.9%. Precipitación inmediata en SG5%, RL y Plasmalyte. Filtro 0.22 µm obligatorio.',ref:'Trissel 19ª / Micromedex'},
+  levetiracetam:    {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'SD', nota:'Alta compatibilidad con fluidos estándar. Estable 4h tras dilución. Sin datos en NPT.',ref:'Stabilis 4.0'},
+  acido_valproico:  {nacl09:'C', sg5:'C', rl:'SD',plasma:'SD',npt:'I',  nota:'Compatible en SF y SG5%. Sin datos en RL/Plasmalyte. No añadir a NPT.',ref:'Stabilis 4.0'},
+  meropenem:        {nacl09:'C', sg5:'V', rl:'SD',plasma:'SD',npt:'I',  nota:'En SG5% estabilidad reducida a 1-2h (vs 4-8h en SF). Administrar rápido. Sin datos en NPT.',ref:'Trissel 19ª'},
+  pip_tazo:         {nacl09:'C', sg5:'C', rl:'C', plasma:'SD',npt:'I',  nota:'Estable en SF, SG5% y RL. Estabilidad variable >12h. No añadir a NPT.',ref:'Trissel 19ª'},
+  vancomicina:      {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'V',  nota:'Compatible en fluidos estándar. Concentración máx. 5 mg/mL. En NPT: variable; verificar con Farmacia.',ref:'Trissel 19ª'},
+  linezolid:        {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'SD', nota:'Presentación lista para usar. Compatible con todos los fluidos estándar. Sin datos en NPT.',ref:'Stabilis 4.0'},
+  ceftriaxona:      {nacl09:'C', sg5:'C', rl:'I', plasma:'I', npt:'I',  severe:true,
+    nota:'☠️ INCOMPATIBILIDAD FATAL con cualquier solución con calcio (RL, Plasmalyte, NPT). Precipitado ceftriaxona-calcio. Casos mortales en neonatos (FDA 2007). SOLO SF o SG5%.',ref:'FDA Safety Alert 2007 / Trissel 19ª'},
+  cefepime:         {nacl09:'C', sg5:'C', rl:'C', plasma:'SD',npt:'SD', nota:'Compatible en SF, SG5% y RL. Estabilidad 12-24h según temperatura.',ref:'Stabilis 4.0'},
+  caspofungina:     {nacl09:'C', sg5:'I', rl:'I', plasma:'I', npt:'I',  nota:'⚠️ SOLO en SF 0.9%. Precipita con SG5%, RL y cualquier fluido con glucosa o calcio.',ref:'Ficha técnica / Trissel 19ª'},
+  fluconazol:       {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'V',  nota:'Compatible en fluidos estándar. En NPT: compatible en algunas formulaciones; verificar electrolitos.',ref:'Trissel 19ª'},
+  clk:              {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'C',  nota:'Compatible con todos los fluidos. Nunca sin diluir (riesgo paro cardíaco). Máx 40 mEq/L periférica, 80-100 mEq/L central.',ref:'Trissel 19ª'},
+  mgso4:            {nacl09:'C', sg5:'C', rl:'V', plasma:'V', npt:'C',  nota:'Compatible en SF y SG5%. En RL y Plasmalyte verificar carga iónica total. Habitualmente incluido en NPT.',ref:'Trissel 19ª'},
+  gluconato_ca:     {nacl09:'C', sg5:'C', rl:'I', plasma:'I', npt:'V',  nota:'⚠️ Incompatible con RL y Plasmalyte. En NPT: riesgo de precipitación calcio-fosfato si no está farmacéuticamente validada.',ref:'Trissel 19ª'},
+  metilprednisolona:{nacl09:'C', sg5:'C', rl:'C', plasma:'SD',npt:'SD', nota:'Compatible en SF, SG5% y RL. Múltiples incompatibilidades en Y. Sin datos en NPT.',ref:'Trissel 19ª'},
+  dexametasona:     {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'SD', nota:'Amplia compatibilidad con fluidos estándar. Sin datos en NPT.',ref:'Stabilis 4.0'},
+  hidrocortisona:   {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'V',  nota:'Compatible en fluidos estándar. En NPT: uso documentado; verificar con Farmacia.',ref:'Trissel 19ª'},
+  furosemida:       {nacl09:'C', sg5:'C', rl:'SD',plasma:'SD',npt:'I',  nota:'pH alcalino. Incompatible con soluciones ácidas. Proteger de la luz. No añadir a NPT.',ref:'Trissel 19ª'},
+  heparina:         {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'V',  nota:'Compatible con fluidos estándar. En NPT: se añade en dosis profiláctica; verificar protocolo local.',ref:'Trissel 19ª'},
+  insulina:         {nacl09:'C', sg5:'I', rl:'SD',plasma:'SD',npt:'V',  nota:'⚠️ Evitar SG5%. Adsorción en PVC; purgar línea. En NPT: se añade a la bolsa en protocolos estándar.',ref:'Trissel 19ª'},
+  pantoprazol:      {nacl09:'C', sg5:'I', rl:'I', plasma:'SD',npt:'I',  nota:'Solo compatible en SF. Precipita con SG5% y RL. pH muy sensible. No añadir a NPT.',ref:'Stabilis 4.0'},
+};
+
+/* ── Y-site raw data ── */
+const YSITE_RAW = [
+  ['propofol','midazolam','I','Separación de fases de la emulsión. No mezclar en Y.','Trissel 19ª'],
+  ['propofol','fentanilo','C','Compatible en Y-site a concentraciones estándar.','Trissel 19ª'],
+  ['propofol','remifentanilo','C','Compatible en Y-site. Combinación estándar TIVA.','Trissel 19ª'],
+  ['propofol','morfina','C','Compatible en Y-site a concentraciones habituales.','Trissel 19ª'],
+  ['propofol','ketamina','C','Compatible en Y-site. Combinación analgésica-sedante UCI.','Stabilis 4.0'],
+  ['propofol','noradrenalina','I','Incompatible. Ruptura de emulsión con catecolaminas.','Stabilis 4.0'],
+  ['propofol','heparina','I','Heparina causa precipitación de la emulsión lipídica.','Trissel 19ª'],
+  ['propofol','vancomicina','I','Incompatible en Y-site. Precipitación visible.','Stabilis 4.0'],
+  ['propofol','insulina','I','Insulina se adsorbe a la emulsión. No recomendado.','Stabilis 4.0'],
+  ['propofol','cisatracurio','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['propofol','rocuronio','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['propofol','dexametasona','I','Incompatible. Precipitación de la emulsión.','Stabilis 4.0'],
+  ['propofol','metilprednisolona','I','Incompatible en Y-site.','Stabilis 4.0'],
+  ['midazolam','fentanilo','C','Compatible en Y-site. Ampliamente usado en UCI.','Trissel 19ª'],
+  ['midazolam','morfina','C','Compatible en Y-site. Combinación frecuente en UCI.','Trissel 19ª'],
+  ['midazolam','ketamina','C','Compatible en Y-site a concentraciones habituales.','Stabilis 4.0'],
+  ['midazolam','noradrenalina','C','Compatible en Y-site a concentraciones habituales.','Stabilis 4.0'],
+  ['midazolam','heparina','I','Precipitado visible. No administrar en Y-site.','Trissel 19ª'],
+  ['midazolam','furosemida','I','Precipitado blanco al mezclar. Incompatible.','Trissel 19ª'],
+  ['midazolam','pantoprazol','I','Precipitado inmediato. Incompatible en Y.','Stabilis 4.0'],
+  ['midazolam','amiodarona','I','Precipitación por diferencia de pH. Incompatible.','Stabilis 4.0'],
+  ['midazolam','cisatracurio','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['midazolam','rocuronio','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['midazolam','dexmedetomidina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['midazolam','vancomicina','C','Compatible en Y-site a concentraciones estándar.','Trissel 19ª'],
+  ['midazolam','levetiracetam','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['midazolam','dexametasona','C','Compatible en Y-site.','Trissel 19ª'],
+  ['fentanilo','noradrenalina','C','Compatible en Y-site. Uso habitual en UCI.','Trissel 19ª'],
+  ['fentanilo','heparina','C','Compatible en Y-site a concentraciones estándar.','Trissel 19ª'],
+  ['fentanilo','vancomicina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['fentanilo','furosemida','I','Precipitado. Incompatible en Y-site.','Trissel 19ª'],
+  ['fentanilo','amiodarona','SD','Datos insuficientes. Evitar.','SD'],
+  ['fentanilo','cisatracurio','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['fentanilo','rocuronio','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['fentanilo','dexmedetomidina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['fentanilo','ketamina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['fentanilo','levetiracetam','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['fentanilo','dexametasona','C','Compatible en Y-site.','Trissel 19ª'],
+  ['morfina','noradrenalina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['morfina','heparina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['morfina','vancomicina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['morfina','furosemida','I','Incompatible. Precipitado visible en Y.','Trissel 19ª'],
+  ['morfina','dexmedetomidina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['morfina','insulina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['morfina','metilprednisolona','I','Incompatible en Y-site a concentraciones habituales.','Trissel 19ª'],
+  ['morfina','cisatracurio','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['morfina','rocuronio','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['morfina','dexametasona','C','Compatible en Y-site.','Trissel 19ª'],
+  ['ketamina','noradrenalina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['ketamina','dexmedetomidina','C','Compatible en Y-site. Combinación analgosedante documentada.','Stabilis 4.0'],
+  ['ketamina','cisatracurio','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['ketamina','rocuronio','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['ketamina','heparina','SD','Datos insuficientes en Y-site.','SD'],
+  ['ketamina','fenitoina','I','Incompatible. No mezclar en Y.','Trissel 19ª'],
+  ['dexmedetomidina','noradrenalina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['dexmedetomidina','dopamina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['dexmedetomidina','dobutamina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['dexmedetomidina','vancomicina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['dexmedetomidina','heparina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['dexmedetomidina','meropenem','SD','Datos insuficientes en Y-site.','SD'],
+  ['dexmedetomidina','amiodarona','SD','Datos insuficientes. Precaución.','SD'],
+  ['rocuronio','vancomicina','I','Incompatible en Y-site. Precipitación.','Trissel 19ª'],
+  ['rocuronio','heparina','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['rocuronio','furosemida','I','Incompatible. Precipitado.','Stabilis 4.0'],
+  ['rocuronio','noradrenalina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['rocuronio','dopamina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['rocuronio','dobutamina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['cisatracurio','vancomicina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['cisatracurio','noradrenalina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['cisatracurio','heparina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['cisatracurio','furosemida','I','Incompatible. Precipitado.','Stabilis 4.0'],
+  ['cisatracurio','metilprednisolona','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['noradrenalina','dopamina','C','Compatible en Y-site. Combinación vasopresora habitual.','Trissel 19ª'],
+  ['noradrenalina','dobutamina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['noradrenalina','vasopresina','C','Compatible en Y-site a dosis habituales.','Stabilis 4.0'],
+  ['noradrenalina','vancomicina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['noradrenalina','heparina','I','Incompatible. Inactivación de catecolamina.','Trissel 19ª'],
+  ['noradrenalina','furosemida','I','Alcalinidad de furosemida degrada noradrenalina.','Stabilis 4.0'],
+  ['noradrenalina','amiodarona','V','Variable según concentración y tiempo. Precaución.','Stabilis 4.0'],
+  ['noradrenalina','insulina','C','Compatible en Y-site en infusión continua.','Trissel 19ª'],
+  ['noradrenalina','meropenem','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['noradrenalina','dexametasona','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['noradrenalina','hidrocortisona','C','Compatible en Y-site. Uso habitual en UCI.','Trissel 19ª'],
+  ['noradrenalina','ceftriaxona','C','Compatible en Y-site en SF.','Stabilis 4.0'],
+  ['noradrenalina','levetiracetam','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['dopamina','dobutamina','C','Compatible en Y-site. Combinación inotrópica habitual.','Trissel 19ª'],
+  ['dopamina','vasopresina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['dopamina','meropenem','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['dopamina','linezolid','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['dopamina','heparina','I','Incompatible. Dopamina inactiva heparina.','Trissel 19ª'],
+  ['dopamina','furosemida','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['amiodarona','heparina','I','⚠️ Precipitación inmediata. Nunca en Y.','Trissel 19ª'],
+  ['amiodarona','furosemida','I','Incompatible. Precipitado visible.','Stabilis 4.0'],
+  ['amiodarona','vancomicina','I','Incompatible en Y-site. Precipitación.','Stabilis 4.0'],
+  ['amiodarona','meropenem','I','Incompatible. Precipitación confirmada.','Stabilis 4.0'],
+  ['amiodarona','insulina','SD','Sin datos suficientes. No recomendado.','SD'],
+  ['amiodarona','ceftriaxona','I','Incompatible en Y-site.','Stabilis 4.0'],
+  ['amiodarona','pip_tazo','I','Incompatible en Y-site.','Stabilis 4.0'],
+  ['esmolol','dopamina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['esmolol','noradrenalina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['esmolol','heparina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['esmolol','vancomicina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['esmolol','furosemida','I','Incompatible. Precipitación.','Trissel 19ª'],
+  ['esmolol','amiodarona','SD','Sin datos. Evitar.','SD'],
+  ['labetalol','heparina','C','Compatible en Y-site en SF.','Trissel 19ª'],
+  ['labetalol','furosemida','I','Incompatible. No mezclar.','Trissel 19ª'],
+  ['labetalol','dopamina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['nitroglicerina','heparina','I','Reducción del efecto anticoagulante de heparina. Incompatible.','Trissel 19ª'],
+  ['nitroglicerina','noradrenalina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['nitroglicerina','dopamina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['nitroprusiato','dopamina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['nitroprusiato','heparina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['nitroprusiato','noradrenalina','C','Compatible en Y-site.','Stabilis 4.0'],
+  // ── NICARDIPINO Y-site ──
+  ['nicardipino','noradrenalina','C','Compatible en Y-site a concentraciones habituales de UCI.','Stabilis 4.0'],
+  ['nicardipino','dopamina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['nicardipino','dobutamina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['nicardipino','vasopresina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['nicardipino','midazolam','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['nicardipino','fentanilo','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['nicardipino','morfina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['nicardipino','heparina','V','Variable. Puede producir leve turbidez según concentración. Monitorizar.','Stabilis 4.0'],
+  ['nicardipino','furosemida','I','Incompatible en Y-site. Precipitación por diferencia de pH.','Trissel 19ª'],
+  ['nicardipino','amiodarona','SD','Sin datos suficientes. Precaución.','SD'],
+  ['nicardipino','vancomicina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['nicardipino','labetalol','SD','Sin datos. Monitorizar si es imprescindible.','SD'],
+  ['nicardipino','esmolol','C','Compatible en Y-site a concentraciones estándar.','Stabilis 4.0'],
+  // ── CLEVIDIPINO Y-site ──
+  // Clevidipino es emulsión lipídica: incompatible con prácticamente todo en Y-site
+  ['clevidipino','amiodarona','I','☠️ Rotura de emulsión lipídica. Absolutamente incompatible en Y.','Ficha técnica',true],
+  ['clevidipino','heparina','I','Incompatible. Rotura de emulsión lipídica por heparina.','Ficha técnica'],
+  ['clevidipino','furosemida','I','Incompatible. Precipitación/rotura de emulsión.','Ficha técnica'],
+  ['clevidipino','noradrenalina','I','⚠️ No administrar en Y. Riesgo de rotura de emulsión.','Ficha técnica'],
+  ['clevidipino','dopamina','I','Incompatible en Y-site. Rotura de emulsión.','Ficha técnica'],
+  ['clevidipino','propofol','I','Dos emulsiones lipídicas en Y: absolutamente contraindicado. Riesgo de sobredosis lipídica.','Ficha técnica',true],
+  ['clevidipino','vancomicina','I','Incompatible. Rotura de emulsión.','Ficha técnica'],
+  ['clevidipino','midazolam','I','Incompatible en Y-site.','Ficha técnica'],
+  ['clevidipino','fentanilo','I','No recomendado en Y-site. Vía dedicada obligatoria.','Ficha técnica'],
+  // Fenitoína
+  ['fenitoina','heparina','I','Incompatible. Precipitado.','Trissel 19ª'],
+  ['fenitoina','midazolam','I','Incompatible. No mezclar en Y.','Trissel 19ª'],
+  ['fenitoina','vancomicina','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['fenitoina','noradrenalina','I','Incompatible. No mezclar.','Trissel 19ª'],
+  ['fenitoina','dopamina','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['fenitoina','dobutamina','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['fenitoina','insulina','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['fenitoina','morfina','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['fenitoina','gluconato_ca','I','☠️ Riesgo de precipitado calcio-fenitoína. Incompatible.','Trissel 19ª',true],
+  ['levetiracetam','vancomicina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['levetiracetam','heparina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['levetiracetam','meropenem','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['levetiracetam','noradrenalina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['acido_valproico','heparina','SD','Sin datos. Precaución.','SD'],
+  ['acido_valproico','meropenem','I','⚠️ Interacción FC: meropenem reduce significativamente niveles de valproato. No combinar.','Micromedex'],
+  ['vancomicina','heparina','I','⚠️ Incompatible clásico. Precipitado blanco inmediato.','Trissel 19ª'],
+  ['vancomicina','furosemida','I','Diferencia de pH causa precipitación.','Trissel 19ª'],
+  ['vancomicina','pip_tazo','I','Incompatible en Y-site. Documentado ampliamente.','Trissel 19ª'],
+  ['vancomicina','meropenem','I','Incompatible en Y-site. Precipitación confirmada.','Stabilis 4.0'],
+  ['vancomicina','linezolid','C','Compatible en Y-site. Útil en terapia sinérgica.','Stabilis 4.0'],
+  ['vancomicina','pantoprazol','I','Incompatible. Precipitación.','Stabilis 4.0'],
+  ['vancomicina','ceftriaxona','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['vancomicina','cefepime','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['vancomicina','fluconazol','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['vancomicina','metilprednisolona','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['vancomicina','hidrocortisona','C','Compatible en Y-site.','Trissel 19ª'],
+  ['vancomicina','clk','C','Compatible en Y-site.','Trissel 19ª'],
+  ['vancomicina','mgso4','C','Compatible en Y-site.','Trissel 19ª'],
+  ['ceftriaxona','gluconato_ca','I','☠️ INCOMPATIBILIDAD FATAL. Precipitado ceftriaxona-calcio. Casos mortales neonatos (FDA 2007). NUNCA en Y.','FDA / Trissel 19ª',true],
+  ['ceftriaxona','mgso4','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['ceftriaxona','heparina','I','Precipitación. Incompatible en Y.','Trissel 19ª'],
+  ['ceftriaxona','fluconazol','I','Incompatible en Y-site. Precipitación.','Stabilis 4.0'],
+  ['ceftriaxona','vancomicina','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['ceftriaxona','metilprednisolona','I','Incompatible en Y-site.','Stabilis 4.0'],
+  ['cefepime','heparina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['cefepime','furosemida','I','Incompatible. Precipitación.','Trissel 19ª'],
+  ['cefepime','fluconazol','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['caspofungina','heparina','SD','Sin datos en Y-site. Precaución.','SD'],
+  ['caspofungina','gluconato_ca','I','Incompatible. No mezclar con calcio.','Ficha técnica'],
+  ['caspofungina','meropenem','SD','Sin datos. Evitar.','SD'],
+  ['fluconazol','heparina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['fluconazol','meropenem','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['fluconazol','noradrenalina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['fluconazol','pip_tazo','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['clk','heparina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['clk','insulina','C','Compatible en Y-site. Combinación habitual en protocolos de potasio.','Trissel 19ª'],
+  ['clk','furosemida','C','Compatible en Y-site.','Trissel 19ª'],
+  ['clk','mgso4','C','Compatible en Y-site.','Trissel 19ª'],
+  ['clk','noradrenalina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['mgso4','heparina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['mgso4','noradrenalina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['mgso4','gluconato_ca','I','⚠️ Precipitado de Mg(OH)₂ posible si concentrado. No mezclar en Y.','Trissel 19ª'],
+  ['gluconato_ca','heparina','I','Incompatible. Precipitación.','Trissel 19ª'],
+  ['metilprednisolona','heparina','I','Incompatible. No mezclar en Y.','Trissel 19ª'],
+  ['metilprednisolona','furosemida','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['metilprednisolona','insulina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['metilprednisolona','noradrenalina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['dexametasona','heparina','I','Incompatible en Y-site. Precipitado.','Trissel 19ª'],
+  ['dexametasona','vancomicina','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['hidrocortisona','heparina','I','Incompatible. Precipitación en Y.','Trissel 19ª'],
+  ['hidrocortisona','noradrenalina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['hidrocortisona','insulina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['heparina','insulina','C','Compatible en Y-site. Mezcla usada en protocolos UCI.','Trissel 19ª'],
+  ['heparina','furosemida','C','Compatible en Y-site.','Trissel 19ª'],
+  ['heparina','dobutamina','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['furosemida','pantoprazol','C','Compatible con mismo pH alcalino. Monitorizar.','Stabilis 4.0'],
+  ['furosemida','insulina','SD','Sin datos suficientes.','SD'],
+  ['meropenem','linezolid','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['meropenem','pantoprazol','I','Incompatible. Precipitación.','Stabilis 4.0'],
+  ['meropenem','pip_tazo','SD','No hay estudios de Y-site combinados. Evitar.','SD'],
+  ['meropenem','heparina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['meropenem','fluconazol','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['pip_tazo','linezolid','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['pip_tazo','furosemida','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['pip_tazo','heparina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['pip_tazo','fluconazol','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['insulina','dexmedetomidina','SD','Sin datos disponibles.','SD'],
+  ['pantoprazol','heparina','I','Incompatible. No mezclar.','Stabilis 4.0'],
+];
+
+/* Build bidirectional Y-site map */
+const YSITE = {};
+YSITE_RAW.forEach(([a,b,estado,nota,ref,severe=false])=>{
+  if(!YSITE[a]) YSITE[a]={};
+  if(!YSITE[b]) YSITE[b]={};
+  YSITE[a][b]={estado,nota,ref,severe};
+  YSITE[b][a]={estado,nota,ref,severe};
+});
+
+function getYsite(a,b){
+  if(a===b) return null;
+  return YSITE[a]?.[b]||YSITE[b]?.[a]||{
+    estado:'SD',nota:'Sin datos en la literatura consultada. Se recomienda no mezclar por precaución.',ref:'—',severe:false
+  };
+}
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let fluidoSel = null;
+let farmSel   = [];
+const accState= {};
+
+/* ══════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════ */
+function labelOf(id){ return FARMACOS.find(f=>f.id===id)?.label||id; }
+
+function getFarmacosPorGrupo(q=''){
+  const ql=q.toLowerCase().trim();
+  const map={};
+  FARMACOS
+    .filter(f=>!ql||f.label.toLowerCase().includes(ql)||f.grupo.toLowerCase().includes(ql))
+    .forEach(f=>{ if(!map[f.grupo]) map[f.grupo]=[]; map[f.grupo].push(f); });
+  return map;
+}
+
+function sbadgeHTML(estado,severe){
+  return severe
+    ?`<div class="sbadge SEVERE">☠️</div>`
+    :`<div class="sbadge ${estado}">${estado}</div>`;
+}
+
+function rrowHTML(label,compat){
+  const cls=compat.severe?'SEVERE':compat.estado;
+  return `<div class="rrow ${cls}">
+    ${sbadgeHTML(compat.estado,compat.severe)}
+    <div class="rinfo">
+      <div class="rdrug${compat.severe?' sev':''}">${label}</div>
+      <div class="rnote">${compat.nota}</div>
+      ${compat.ref?`<div class="rref">📚 ${compat.ref}</div>`:''}
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════
+   RENDER: FLUIDOS
+══════════════════════════════════════════ */
+function renderFluidos(){
+  const grid=document.getElementById('fluido-grid');
+  const normal=FLUIDOS.filter(f=>f.id!=='npt');
+  const npt=FLUIDOS.find(f=>f.id==='npt');
+  grid.innerHTML=
+    normal.map(f=>`<button class="fluido-btn${fluidoSel===f.id?' active':''}" data-fid="${f.id}">
+      <span class="f-short">${f.short}</span><span class="f-long">${f.label}</span>
+    </button>`).join('')+
+    `<div class="npt-wrap"><button class="fluido-btn is-npt${fluidoSel===npt.id?' active':''}" data-fid="${npt.id}">
+      <span class="f-short">${npt.short}</span><span class="f-long">${npt.label}</span>
+    </button></div>`;
+  grid.querySelectorAll('.fluido-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      fluidoSel=fluidoSel===btn.dataset.fid?null:btn.dataset.fid;
+      renderFluidos(); renderPanel();
+    });
+  });
+}
+
+/* ══════════════════════════════════════════
+   RENDER: ACCORDIONS
+   Only the container innerHTML is updated —
+   the <input> element is NEVER touched here.
+══════════════════════════════════════════ */
+function renderAccordions(){
+  const q=document.getElementById('search-input').value;
+  const container=document.getElementById('accordion-container');
+  const grupos=getFarmacosPorGrupo(q);
+
+  container.innerHTML=Object.entries(grupos).map(([grupo,items])=>{
+    const selCount=items.filter(f=>farmSel.includes(f.id)).length;
+    const open=!!accState[grupo];
+    return `<div class="accordion">
+      <button class="acc-hdr${open?' open':''}" data-grupo="${grupo}">
+        <span>${grupo}</span>
+        <div class="acc-meta">
+          <span class="acc-badge${selCount?' has':''}">${selCount?`${selCount}/`:''}${items.length}</span>
+          <span class="acc-arrow${open?' open':''}">▼</span>
+        </div>
+      </button>
+      <div class="acc-body${open?' open':''}">
+        ${items.map(f=>{
+          const s=farmSel.includes(f.id);
+          return `<button class="drug-btn${s?' sel':''}" data-did="${f.id}">
+            <span class="dcheck">${s?'✓':''}</span>${f.label}
+          </button>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('.acc-hdr').forEach(hdr=>{
+    hdr.addEventListener('click',()=>{
+      accState[hdr.dataset.grupo]=!accState[hdr.dataset.grupo];
+      renderAccordions();
+    });
+  });
+  container.querySelectorAll('.drug-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const did=btn.dataset.did;
+      farmSel=farmSel.includes(did)?farmSel.filter(x=>x!==did):[...farmSel,did];
+      renderAccordions(); renderPanel();
+    });
+  });
+}
+
+/* ══════════════════════════════════════════
+   RENDER: PANEL
+   Shows dilución card with ≥1 drug.
+   Shows Y-site card only with ≥2 drugs.
+══════════════════════════════════════════ */
+function renderPanel(){
+  const empty  =document.getElementById('empty-state');
+  const results=document.getElementById('results');
+
+  if(!fluidoSel||farmSel.length===0){
+    empty.style.display='flex'; results.style.display='none'; return;
+  }
+  empty.style.display='none'; results.style.display='block';
+
+  const fluidoLabel=FLUIDOS.find(f=>f.id===fluidoSel)?.label||'';
+
+  /* Y-site pairs — only when ≥2 */
+  const pares=[];
+  for(let i=0;i<farmSel.length;i++)
+    for(let j=i+1;j<farmSel.length;j++)
+      pares.push([farmSel[i],farmSel[j]]);
+
+  /* Severe alerts */
+  const sevAlerts=[];
+  farmSel.forEach(fid=>{
+    const cf=CF[fid];
+    if(cf?.severe) sevAlerts.push(`${labelOf(fid)} + ${fluidoLabel}`);
+    if(fid==='ceftriaxona'&&['rl','plasma','npt'].includes(fluidoSel))
+      sevAlerts.push(`Ceftriaxona + ${fluidoLabel} (calcio)`);
+  });
+  pares.forEach(([a,b])=>{ const c=getYsite(a,b); if(c?.severe) sevAlerts.push(`${labelOf(a)} ↔ ${labelOf(b)}`); });
+  const uniqSev=[...new Set(sevAlerts)];
+
+  /* Stats */
+  const allSt=[];
+  farmSel.forEach(fid=>{ const e=CF[fid]?.[fluidoSel]; if(e) allSt.push(e); });
+  pares.forEach(([a,b])=>{ const c=getYsite(a,b); if(c) allSt.push(c.estado); });
+  const st={
+    C:allSt.filter(x=>x==='C').length, I:allSt.filter(x=>x==='I').length,
+    V:allSt.filter(x=>x==='V').length, SD:allSt.filter(x=>x==='SD').length,
+    SV:uniqSev.length,
+  };
+
+  /* Chips + buttons */
+  const topbar=`<div class="topbar">
+    <div class="chips-wrap">
+      ${farmSel.map(id=>`<div class="chip">${labelOf(id)}<button class="chip-x" data-cid="${id}">✕</button></div>`).join('')}
+    </div>
+    <button class="btn-sm" id="btn-clear">🗑 Limpiar</button>
+    <button class="btn-sm btn-copy" id="btn-copy">📋 Copiar</button>
+  </div>`;
+
+  /* NPT banner */
+  const nptBanner=fluidoSel==='npt'?`<div class="npt-banner">
+    <strong>⚗️ NPT:</strong> La compatibilidad depende de la formulación exacta (aminoácidos, lípidos, glucosa, electrolitos).
+    Riesgo crítico: <strong>precipitación calcio-fosfato</strong> (potencialmente fatal).
+    Toda adición de fármacos <strong>debe ser validada por Farmacia Hospitalaria</strong>.
+  </div>`:'';
+
+  /* Severe banner */
+  const severeBanner=uniqSev.length?`<div class="severe-banner">
+    <strong>☠️ ALERTA CRÍTICA — INCOMPATIBILIDADES CON RIESGO VITAL</strong>
+    <ul>${uniqSev.map(a=>`<li>${a}</li>`).join('')}</ul>
+  </div>`:'';
+
+  /* Legend */
+  const legend=`<div class="legend">
+    ${[['C','Compatible'],['I','Incompatible'],['V','Variable'],['SD','Sin datos'],['SEVERE','Riesgo vital ☠️']]
+      .map(([c,l])=>`<div class="leg-item"><div class="ldot ${c}"></div><span>${l}</span></div>`).join('')}
+  </div>`;
+
+  /* Stat pills */
+  const statHtml=`<div class="stats">
+    ${st.SV?`<div class="spill SV">☠️ ${st.SV} crítica${st.SV>1?'s':''}</div>`:''}
+    ${st.C ?`<div class="spill C">✓ ${st.C} compatible${st.C>1?'s':''}</div>`:''}
+    ${st.I ?`<div class="spill I">✕ ${st.I} incompatible${st.I>1?'s':''}</div>`:''}
+    ${st.V ?`<div class="spill V">⚠ ${st.V} variable${st.V>1?'s':''}</div>`:''}
+    ${st.SD?`<div class="spill SD">? ${st.SD} sin dato${st.SD>1?'s':''}</div>`:''}
+  </div>`;
+
+  /* Card: dilución — always shown with ≥1 drug */
+  const cardFluido=`<div class="card">
+    <div class="card-hdr">
+      <span class="card-hdr-icon">🧪</span>
+      <div class="card-hdr-text"><h3>Compatibilidad con fluido de dilución</h3><span>${fluidoLabel}</span></div>
+    </div>
+    <div class="card-body">
+      ${farmSel.map(fid=>{
+        const cf=CF[fid];
+        const estado=cf?.[fluidoSel]||'SD';
+        const nota=cf?.nota||'Sin datos para este fluido.';
+        const ref=cf?.ref||'—';
+        const severe=(cf?.severe||false)||(fid==='ceftriaxona'&&['rl','plasma','npt'].includes(fluidoSel));
+        return rrowHTML(labelOf(fid),{estado,nota,ref,severe});
+      }).join('')}
+    </div>
+  </div>`;
+
+  /* Card: Y-site — only when ≥2 drugs */
+  const cardYsite=pares.length?`<div class="card">
+    <div class="card-hdr">
+      <span class="card-hdr-icon">⑂</span>
+      <div class="card-hdr-text">
+        <h3>Compatibilidad en Y-site</h3>
+        <span>${pares.length} par${pares.length>1?'es':''} evaluado${pares.length>1?'s':''}</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="ygrid">
+        ${pares.map(([a,b])=>{
+          const c=getYsite(a,b);
+          const lbl=`${labelOf(a)} <span style="color:var(--sd);font-weight:400">↔</span> ${labelOf(b)}`;
+          return rrowHTML(lbl,c);
+        }).join('')}
+      </div>
+    </div>
+  </div>`:'';
+
+  /* Disclaimer */
+  const disclaimer=`<div class="disclaimer">
+    <strong>⚠️ Aviso legal y clínico:</strong> Herramienta de <strong>apoyo orientativo</strong>.
+    Datos basados en Trissel's (19ª ed.), Stabilis 4.0, Micromedex y King Guide.
+    La compatibilidad varía según <strong>concentración, temperatura, tiempo de exposición, envase y formulación comercial</strong>.
+    Las incompatibilidades ☠️ tienen riesgo vital documentado: tratar como contraindicación absoluta.
+    Verificar siempre con <strong>Farmacia Hospitalaria</strong>. <strong>No sustituye el criterio clínico profesional.</strong>
+  </div>`;
+
+  results.innerHTML=topbar+nptBanner+severeBanner+legend+statHtml+cardFluido+cardYsite+disclaimer;
+
+  /* Wire: chip removes */
+  results.querySelectorAll('.chip-x').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      farmSel=farmSel.filter(x=>x!==btn.dataset.cid);
+      renderAccordions(); renderPanel();
+    });
+  });
+
+  /* Wire: clear all */
+  document.getElementById('btn-clear')?.addEventListener('click',()=>{
+    farmSel=[]; fluidoSel=null;
+    renderFluidos(); renderAccordions(); renderPanel();
+  });
+
+  /* Wire: copy summary */
+  document.getElementById('btn-copy')?.addEventListener('click',()=>{
+    const lines=[
+      '═══════════════════════════════════════',
+      '  RESUMEN COMPATIBILIDAD IV — UCI',
+      `  Fluido: ${fluidoLabel}`,
+      `  Fármacos: ${farmSel.map(labelOf).join(', ')}`,
+      '═══════════════════════════════════════','',
+      '── COMPATIBILIDAD CON FLUIDO ──',
+    ];
+    farmSel.forEach(fid=>{
+      const cf=CF[fid]; const est=cf?.[fluidoSel]||'SD';
+      lines.push(`[${est}] ${labelOf(fid)}: ${cf?.nota||'Sin datos.'}`);
+    });
+    if(pares.length){
+      lines.push('','── Y-SITE ──');
+      pares.forEach(([a,b])=>{
+        const c=getYsite(a,b);
+        lines.push(`[${c?.estado}] ${c?.severe?'☠️ ':''}${labelOf(a)} ↔ ${labelOf(b)}: ${c?.nota}`);
+      });
+    }
+    if(uniqSev.length) lines.push('','⚠️ ALERTAS CRÍTICAS:',...uniqSev.map(s=>`   ☠️ ${s}`));
+    lines.push('','AVISO: Herramienta de apoyo. Verificar con Farmacia. No sustituye criterio clínico.');
+    navigator.clipboard.writeText(lines.join('\n')).then(()=>{
+      const btn=document.getElementById('btn-copy');
+      const toast=document.getElementById('toast');
+      if(btn){btn.textContent='✓ Copiado';btn.classList.add('copied');}
+      toast.classList.add('show');
+      setTimeout(()=>{
+        if(btn){btn.textContent='📋 Copiar';btn.classList.remove('copied');}
+        toast.classList.remove('show');
+      },2500);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  renderFluidos();
+  renderAccordions();
+
+  /* Search: never re-renders the input itself */
+  const inp=document.getElementById('search-input');
+  const clr=document.getElementById('search-clear');
+  inp.addEventListener('input',()=>{
+    clr.classList.toggle('visible',inp.value.length>0);
+    renderAccordions();
+  });
+  clr.addEventListener('click',()=>{
+    inp.value=''; clr.classList.remove('visible');
+    renderAccordions(); inp.focus();
+  });
+});
+</script>
+</body>
+</html>
