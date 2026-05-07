@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSQM v1.4 — Cuestionario de Satisfacción con el Medicamento</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #F8FAFC;
+    --surface:   #FFFFFF;
+    --border:    #E2E8F0;
+    --navy:      #1E293B;
+    --navy-mid:  #475569;
+    --navy-soft: #94A3B8;
+    --navy-dim:  #CBD5E1;
+
+    --b1-bg:     #E0F2FE;
+    --b1-mid:    #BAE6FD;
+    --b1-accent: #0284C7;
+    --b1-soft:   #F0F9FF;
+
+    --b2-bg:     #FEE2E2;
+    --b2-mid:    #FECACA;
+    --b2-accent: #DC2626;
+    --b2-soft:   #FFF5F5;
+
+    --b3-bg:     #DCFCE7;
+    --b3-mid:    #BBF7D0;
+    --b3-accent: #16A34A;
+    --b3-soft:   #F0FDF4;
+
+    --b4-bg:     #FEF3C7;
+    --b4-mid:    #FDE68A;
+    --b4-accent: #D97706;
+    --b4-soft:   #FFFBEB;
+
+    --shadow-sm: 0 1px 3px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.04);
+    --shadow-md: 0 4px 16px rgba(15,23,42,0.08), 0 2px 6px rgba(15,23,42,0.05);
+    --shadow-lg: 0 10px 32px rgba(15,23,42,0.10), 0 4px 12px rgba(15,23,42,0.06);
+
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+
+    --serif: 'Lora', Georgia, serif;
+    --sans:  'Inter', system-ui, sans-serif;
+
+    /* Active block theming (swapped at runtime) */
+    --active-bg:     var(--b1-bg);
+    --active-mid:    var(--b1-mid);
+    --active-accent: var(--b1-accent);
+    --active-soft:   var(--b1-soft);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--navy);
+    font-family: var(--sans);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Layout shell ──────────────────────────────────────────────── */
+  .app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 60px;
+  }
+
+  /* ── Top bar ───────────────────────────────────────────────────── */
+  .topbar {
+    width: 100%;
+    max-width: 780px;
+    padding: 28px 0 0;
+    margin-bottom: 32px;
+  }
+  .topbar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: var(--navy);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-icon svg { width: 22px; height: 22px; color: white; }
+  .logo-text { line-height: 1.2; }
+  .logo-title {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .logo-sub {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--navy-soft);
+    letter-spacing: 0.06em;
+  }
+  .step-counter {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--navy-mid);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Progress bar */
+  .progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--active-accent), color-mix(in srgb, var(--active-accent) 70%, #fff));
+    transition: width 0.65s cubic-bezier(0.4,0,0.2,1),
+                background 0.4s ease;
+  }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--navy-soft);
+    font-weight: 500;
+  }
+
+  /* ── Card ──────────────────────────────────────────────────────── */
+  .card {
+    width: 100%;
+    max-width: 780px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    animation: cardIn 0.4s cubic-bezier(0.2,0,0,1) both;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.99); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .card-accent-strip {
+    height: 5px;
+    background: linear-gradient(90deg, var(--active-accent), color-mix(in srgb, var(--active-accent) 50%, #fff));
+    transition: background 0.4s ease;
+  }
+
+  .card-body { padding: 48px 52px 44px; }
+  @media (max-width: 600px) { .card-body { padding: 32px 24px 28px; } }
+
+  /* Block badge */
+  .block-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px 5px 8px;
+    border-radius: 20px;
+    background: var(--active-bg);
+    border: 1px solid var(--active-mid);
+    margin-bottom: 28px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .block-badge-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--active-accent);
+    transition: background 0.3s;
+  }
+  .block-badge-text {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--active-accent);
+    transition: color 0.3s;
+  }
+
+  /* Question number */
+  .q-eyebrow {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--navy-soft);
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  /* Question text */
+  .q-text {
+    font-family: var(--serif);
+    font-size: clamp(20px, 3.2vw, 27px);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--navy);
+    margin-bottom: 40px;
+  }
+
+  /* Scale label */
+  .scale-descriptor {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--navy-mid);
+    margin-bottom: 14px;
+    padding: 0 4px;
+  }
+  .scale-descriptor span {
+    max-width: 45%;
+    line-height: 1.4;
+  }
+  .scale-descriptor span:last-child { text-align: right; }
+
+  /* Scale buttons */
+  .scale-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .scale-btn {
+    flex: 1;
+    min-width: 52px;
+    height: 68px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--navy-mid);
+    font-family: var(--sans);
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .scale-btn:hover {
+    border-color: var(--active-accent);
+    background: var(--active-soft);
+    color: var(--active-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .scale-btn.selected {
+    border-color: var(--active-accent);
+    background: var(--active-accent);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--active-accent) 35%, transparent);
+  }
+  @media (max-width: 500px) {
+    .scale-btn { height: 60px; font-size: 18px; }
+  }
+
+  /* Binary buttons */
+  .binary-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .binary-btn {
+    flex: 1;
+    padding: 22px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    color: var(--navy-mid);
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .binary-btn .binary-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    background: var(--border);
+    transition: background 0.2s;
+  }
+  .binary-btn:hover {
+    border-color: var(--active-accent);
+    background: var(--active-soft);
+    color: var(--active-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .binary-btn:hover .binary-icon { background: var(--active-bg); }
+  .binary-btn.selected {
+    border-color: var(--active-accent);
+    background: var(--active-soft);
+    color: var(--active-accent);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--active-accent) 20%, transparent);
+  }
+  .binary-btn.selected .binary-icon { background: var(--active-bg); }
+
+  /* Skip notice */
+  .skip-notice {
+    background: var(--b3-soft);
+    border: 1px solid var(--b3-mid);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--b3-accent);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .skip-notice svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  /* Ident inputs */
+  .ident-intro {
+    font-family: var(--serif);
+    font-size: clamp(22px,3.5vw,30px);
+    line-height: 1.45;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+  .ident-sub {
+    font-size: 14px;
+    color: var(--navy-mid);
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+  .field-stack { display: flex; flex-direction: column; gap: 24px; margin-bottom: 44px; }
+  .field-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--navy-mid);
+  }
+  .field-input {
+    width: 100%;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--navy);
+    font-family: var(--sans);
+    font-size: 16px;
+    padding: 16px 18px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field-input::placeholder { color: var(--navy-dim); }
+  .field-input:focus {
+    border-color: var(--b1-accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--b1-accent) 12%, transparent);
+  }
+
+  /* Next / submit button */
+  .btn-next {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--active-accent);
+    color: #fff;
+    border: none;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 18px 36px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--active-accent) 35%, transparent);
+    transition: all 0.2s ease;
+  }
+  .btn-next:hover { filter: brightness(1.08); transform: translateY(-2px); }
+  .btn-next:disabled {
+    background: var(--border);
+    color: var(--navy-soft);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+  }
+  .btn-next svg { width: 18px; height: 18px; }
+
+  /* ── Results ─────────────────────────────────────────────────── */
+  .results-outer {
+    width: 100%;
+    max-width: 780px;
+    animation: cardIn 0.5s ease both;
+  }
+  .results-title {
+    font-family: var(--serif);
+    font-size: clamp(24px,4vw,36px);
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .results-subtitle {
+    font-size: 13px;
+    color: var(--navy-soft);
+    margin-bottom: 32px;
+  }
+
+  /* ID strip */
+  .id-strip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px 32px;
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+  }
+  .id-item-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--navy-soft);
+    margin-bottom: 5px;
+  }
+  .id-item-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  /* Domain cards grid */
+  .domain-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 520px) { .domain-grid { grid-template-columns: 1fr; } }
+
+  .domain-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 28px 28px 24px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+  }
+  .domain-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+  .dc-b1::after { background: var(--b1-accent); }
+  .dc-b2::after { background: var(--b2-accent); }
+  .dc-b3::after { background: var(--b3-accent); }
+  .dc-b4::after { background: var(--b4-accent); }
+
+  .dc-b1 { background: var(--b1-soft); border-color: var(--b1-mid); }
+  .dc-b2 { background: var(--b2-soft); border-color: var(--b2-mid); }
+  .dc-b3 { background: var(--b3-soft); border-color: var(--b3-mid); }
+  .dc-b4 { background: var(--b4-soft); border-color: var(--b4-mid); }
+
+  .domain-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .dc-b1 .domain-label { color: var(--b1-accent); }
+  .dc-b2 .domain-label { color: var(--b2-accent); }
+  .dc-b3 .domain-label { color: var(--b3-accent); }
+  .dc-b4 .domain-label { color: var(--b4-accent); }
+
+  .domain-score {
+    font-family: var(--serif);
+    font-size: 56px;
+    line-height: 1;
+    font-weight: 400;
+    margin-bottom: 20px;
+    color: var(--navy);
+  }
+  .domain-bar-track {
+    height: 6px;
+    background: rgba(15,23,42,0.08);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .domain-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 1.1s cubic-bezier(0.4,0,0.2,1) 0.2s;
+  }
+  .dc-b1 .domain-bar-fill { background: var(--b1-accent); }
+  .dc-b2 .domain-bar-fill { background: var(--b2-accent); }
+  .dc-b3 .domain-bar-fill { background: var(--b3-accent); }
+  .dc-b4 .domain-bar-fill { background: var(--b4-accent); }
+
+  .domain-range {
+    font-size: 11px;
+    color: var(--navy-soft);
+  }
+
+  /* Data table */
+  .data-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+  }
+  .data-section-header {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--navy-mid);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .data-section-header svg { width: 15px; height: 15px; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--navy-soft);
+    padding: 12px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  td {
+    font-size: 13px;
+    color: var(--navy-mid);
+    padding: 13px 28px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+    line-height: 1.4;
+  }
+  tr:last-child td { border-bottom: none; }
+  td.td-val { color: var(--navy); font-weight: 600; font-size: 14px; }
+  td.td-score { font-family: var(--serif); font-size: 18px; color: var(--navy); font-weight: 400; }
+
+  /* Protocol footer */
+  .protocol-box {
+    background: var(--b1-soft);
+    border: 1px solid var(--b1-mid);
+    border-radius: var(--radius-md);
+    padding: 20px 28px;
+    font-size: 13px;
+    color: var(--navy-mid);
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+  .protocol-box strong { color: var(--navy); font-weight: 600; }
+
+  .btn-restart {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    color: var(--navy-mid);
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 14px 28px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-restart:hover { border-color: var(--navy-mid); color: var(--navy); transform: translateY(-1px); }
+  .btn-restart svg { width: 16px; height: 16px; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- Top bar -->
+  <div class="topbar" id="topbar">
+    <div class="topbar-header">
+      <div class="logo-mark">
+        <div class="logo-icon">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div class="logo-text">
+          <div class="logo-title">TSQM v1.4</div>
+          <div class="logo-sub">Treatment Satisfaction Questionnaire for Medication</div>
+        </div>
+      </div>
+      <div class="step-counter" id="stepCounter">Inicio</div>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-labels">
+      <span id="progressLeft">Identificación del paciente</span>
+      <span id="progressRight">0%</span>
+    </div>
+  </div>
+
+  <!-- Dynamic content -->
+  <div id="mainContent" style="width:100%;max-width:780px;"></div>
+
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+const S = {
+  phase: 'ident',
+  patientId: '', date: '', medication: '',
+  answers: {},
+  hasSideEffects: null,
+  currentQIdx: 0,
+};
+
+// ── Block themes ───────────────────────────────────────────────────────────
+const blockTheme = {
+  b1: { bg:'--b1-bg', mid:'--b1-mid', accent:'--b1-accent', soft:'--b1-soft', label:'Bloque 1 — Eficacia' },
+  b2: { bg:'--b2-bg', mid:'--b2-mid', accent:'--b2-accent', soft:'--b2-soft', label:'Bloque 2 — Efectos Secundarios' },
+  b3: { bg:'--b3-bg', mid:'--b3-mid', accent:'--b3-accent', soft:'--b3-soft', label:'Bloque 3 — Conveniencia' },
+  b4: { bg:'--b4-bg', mid:'--b4-mid', accent:'--b4-accent', soft:'--b4-soft', label:'Bloque 4 — Satisfacción Global' },
+};
+
+function applyTheme(bk) {
+  const t = blockTheme[bk];
+  const r = document.documentElement;
+  r.style.setProperty('--active-bg',     `var(${t.bg})`);
+  r.style.setProperty('--active-mid',    `var(${t.mid})`);
+  r.style.setProperty('--active-accent', `var(${t.accent})`);
+  r.style.setProperty('--active-soft',   `var(${t.soft})`);
+}
+
+// ── Questions ───────────────────────────────────────────────────────────────
+const Qs = [
+  { id:1,  block:'b1', label:'Bloque 1 — Eficacia',
+    text:'¿Qué tan satisfecho o insatisfecho está con la capacidad del medicamento para prevenir o tratar su condición?',
+    type:'scale7', lo:'Extremadamente insatisfecho', hi:'Extremadamente satisfecho' },
+  { id:2,  block:'b1', label:'Bloque 1 — Eficacia',
+    text:'¿Qué tan satisfecho o insatisfecho está con la forma en que el medicamento alivia sus síntomas?',
+    type:'scale7', lo:'Extremadamente insatisfecho', hi:'Extremadamente satisfecho' },
+  { id:3,  block:'b1', label:'Bloque 1 — Eficacia',
+    text:'¿Qué tan satisfecho o insatisfecho está con el tiempo que tarda el medicamento en empezar a funcionar?',
+    type:'scale7', lo:'Extremadamente insatisfecho', hi:'Extremadamente satisfecho' },
+  { id:4,  block:'b2', label:'Bloque 2 — Efectos Secundarios',
+    text:'Como resultado de tomar este medicamento, ¿experimenta usted algún efecto secundario?',
+    type:'binary' },
+  { id:5,  block:'b2', label:'Bloque 2 — Efectos Secundarios',
+    text:'¿Qué tan insatisfecho está por los efectos secundarios que experimenta?',
+    type:'scale5', lo:'Extremadamente molesto / Mucho', hi:'Nada molesto / En absoluto' },
+  { id:6,  block:'b2', label:'Bloque 2 — Efectos Secundarios',
+    text:'¿Hasta qué punto los efectos secundarios interfieren con su funcionamiento físico (ej. fuerza, energía)?',
+    type:'scale5', lo:'Extremadamente / Mucho', hi:'Nada / En absoluto' },
+  { id:7,  block:'b2', label:'Bloque 2 — Efectos Secundarios',
+    text:'¿Hasta qué punto los efectos secundarios interfieren con su función mental (ej. pensar con claridad, mantenerse despierto)?',
+    type:'scale5', lo:'Extremadamente / Mucho', hi:'Nada / En absoluto' },
+  { id:8,  block:'b2', label:'Bloque 2 — Efectos Secundarios',
+    text:'¿Hasta qué punto los efectos secundarios interfieren con su calidad de vida en general?',
+    type:'scale5', lo:'Extremadamente / Mucho', hi:'Nada / En absoluto' },
+  { id:9,  block:'b3', label:'Bloque 3 — Conveniencia',
+    text:'¿Qué tan fácil o difícil es usar el medicamento en su forma actual?',
+    type:'scale7', lo:'Extremadamente difícil / Poco conveniente', hi:'Extremadamente fácil / Muy conveniente' },
+  { id:10, block:'b3', label:'Bloque 3 — Conveniencia',
+    text:'¿Qué tan fácil o difícil es planificar cuándo usar el medicamento?',
+    type:'scale7', lo:'Extremadamente difícil / Poco conveniente', hi:'Extremadamente fácil / Muy conveniente' },
+  { id:11, block:'b3', label:'Bloque 3 — Conveniencia',
+    text:'¿Qué tan conveniente o inconveniente es tomar el medicamento según las instrucciones?',
+    type:'scale7', lo:'Extremadamente difícil / Poco conveniente', hi:'Extremadamente fácil / Muy conveniente' },
+  { id:12, block:'b4', label:'Bloque 4 — Satisfacción Global',
+    text:'En general, ¿qué tanta confianza tiene en que tomar este medicamento es algo bueno para usted?',
+    type:'scale7', lo:'Extremadamente insatisfecho', hi:'Extremadamente satisfecho' },
+  { id:13, block:'b4', label:'Bloque 4 — Satisfacción Global',
+    text:'¿Qué tan seguro está de que las cosas buenas de su medicamento superan a las malas?',
+    type:'scale7', lo:'Extremadamente insatisfecho', hi:'Extremadamente satisfecho' },
+  { id:14, block:'b4', label:'Bloque 4 — Satisfacción Global',
+    text:'Teniendo todo en cuenta, ¿qué tan satisfecho o insatisfecho está con este medicamento?',
+    type:'scale7', lo:'Extremadamente insatisfecho', hi:'Extremadamente satisfecho' },
+];
+
+const seQids = [5,6,7,8];
+
+function activeQs() {
+  return S.hasSideEffects === false ? Qs.filter(q => !seQids.includes(q.id)) : Qs;
+}
+
+// ── Progress update ─────────────────────────────────────────────────────────
+function updateProgress(pct, leftLabel, rightLabel) {
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLeft').textContent  = leftLabel  || '';
+  document.getElementById('progressRight').textContent = rightLabel || pct + '%';
+}
+
+function setStepCounter(text) {
+  document.getElementById('stepCounter').textContent = text;
+}
+
+// ── Render helpers ──────────────────────────────────────────────────────────
+function setContent(html) {
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+function scaleButtons(qId, count, selected) {
+  return Array.from({length: count}, (_,i) => {
+    const v = i+1;
+    return `<button class="scale-btn${selected===v?' selected':''}" onclick="pickScale(${qId},${v},${count})">${v}</button>`;
+  }).join('');
+}
+
+// ── Phase 1: Ident ──────────────────────────────────────────────────────────
+function renderIdent() {
+  S.phase = 'ident';
+  applyTheme('b1');
+  const today = new Date().toISOString().split('T')[0];
+  updateProgress(0, 'Identificación del paciente', '0%');
+  setStepCounter('Inicio');
+  setContent(`
+    <div class="card">
+      <div class="card-accent-strip"></div>
+      <div class="card-body">
+        <div class="block-badge">
+          <div class="block-badge-dot"></div>
+          <span class="block-badge-text">Datos del registro</span>
+        </div>
+        <div class="ident-intro">Antes de comenzar, por favor complete la siguiente información.</div>
+        <p class="ident-sub">Estos datos serán asociados a sus respuestas en el informe final. La evaluación es confidencial y está destinada exclusivamente a su equipo de atención médica.</p>
+        <div class="field-stack">
+          <div class="field-wrap">
+            <label class="field-label">ID del Paciente</label>
+            <input class="field-input" id="fi_id" type="text" placeholder="Ej. PAC-2024-001" value="${S.patientId}" />
+          </div>
+          <div class="field-wrap">
+            <label class="field-label">Fecha de la Evaluación</label>
+            <input class="field-input" id="fi_date" type="date" value="${S.date || today}" />
+          </div>
+          <div class="field-wrap">
+            <label class="field-label">Nombre del Medicamento Evaluado</label>
+            <input class="field-input" id="fi_med" type="text" placeholder="Nombre genérico o comercial" value="${S.medication}" />
+          </div>
+        </div>
+        <button class="btn-next" onclick="submitIdent()">
+          Comenzar Evaluación
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function submitIdent() {
+  const id  = document.getElementById('fi_id').value.trim();
+  const dt  = document.getElementById('fi_date').value.trim();
+  const med = document.getElementById('fi_med').value.trim();
+  if (!id || !dt || !med) { alert('Por favor, complete todos los campos para continuar.'); return; }
+  S.patientId = id; S.date = dt; S.medication = med;
+  S.phase = 'q';
+  renderQuestion(Qs[0].id);
+}
+
+// ── Phase 2: Questions ───────────────────────────────────────────────────────
+function renderQuestion(qId) {
+  const q   = Qs.find(x => x.id === qId);
+  const aqList = activeQs();
+  const idx = aqList.findIndex(x => x.id === qId);
+  S.currentQIdx = idx;
+  applyTheme(q.block);
+  const theme = blockTheme[q.block];
+
+  const total   = aqList.length;
+  const done    = Object.keys(S.answers).length;
+  const pct     = Math.round((done / (total + 1)) * 100);
+  updateProgress(pct, `${theme.label}`, `${pct}%`);
+  setStepCounter(`Pregunta ${idx+1} de ${total}`);
+
+  const sel = S.answers[qId] ?? null;
+  let inputHtml = '';
+
+  if (q.type === 'scale7' || q.type === 'scale5') {
+    const n = q.type === 'scale7' ? 7 : 5;
+    inputHtml = `
+      <div class="scale-descriptor">
+        <span>1 — ${q.lo}</span>
+        <span>${q.hi} — ${n}</span>
+      </div>
+      <div class="scale-row">${scaleButtons(q.id, n, sel)}</div>
+    `;
+  } else {
+    inputHtml = `
+      <div class="binary-row">
+        <button class="binary-btn${sel===1?' selected':''}" onclick="pickBinary(${q.id},1)">
+          <span class="binary-icon">✓</span>
+          Sí
+        </button>
+        <button class="binary-btn${sel===2?' selected':''}" onclick="pickBinary(${q.id},2)">
+          <span class="binary-icon">✗</span>
+          No
+        </button>
+      </div>
+    `;
+  }
+
+  const isLast = (idx === total - 1);
+
+  setContent(`
+    <div class="card">
+      <div class="card-accent-strip"></div>
+      <div class="card-body">
+        <div class="block-badge">
+          <div class="block-badge-dot"></div>
+          <span class="block-badge-text">${theme.label}</span>
+        </div>
+        <div class="q-eyebrow">PREGUNTA ${qId} DE 14</div>
+        <div class="q-text">${q.text}</div>
+        ${inputHtml}
+        ${S.hasSideEffects === false && qId === 3 ? `
+          <div class="skip-notice">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Las preguntas Q5–Q8 serán omitidas. Puntaje de Efectos Secundarios asignado automáticamente: <strong>100.0</strong>.
+          </div>
+        ` : ''}
+        <button class="btn-next" id="btnNext" onclick="nextQ(${q.id})" ${sel===null?'disabled':''}>
+          ${isLast ? 'Ver resultados' : 'Siguiente pregunta'}
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function pickScale(qId, val, max) {
+  S.answers[qId] = val;
+  document.querySelectorAll('.scale-btn').forEach((b,i) => b.classList.toggle('selected', i+1===val));
+  const btn = document.getElementById('btnNext');
+  if (btn) btn.disabled = false;
+}
+
+function pickBinary(qId, val) {
+  S.answers[qId] = val;
+  S.hasSideEffects = (val === 1);
+  document.querySelectorAll('.binary-btn').forEach((b,i) => b.classList.toggle('selected', i+1===val));
+  const btn = document.getElementById('btnNext');
+  if (btn) btn.disabled = false;
+}
+
+function nextQ(currentId) {
+  if (S.answers[currentId] === undefined) return;
+  // Q4: skip side-effect questions if answered No
+  if (currentId === 4 && S.hasSideEffects === false) {
+    renderQuestion(9);
+    return;
+  }
+  const nextId = currentId + 1;
+  if (nextId > 14) { renderResults(); }
+  else { renderQuestion(nextId); }
+}
+
+// ── Phase 3: Results ─────────────────────────────────────────────────────────
+function calcScores() {
+  const a = S.answers;
+  const efScore   = ((((a[1]||0)+(a[2]||0)+(a[3]||0)) - 3) / 18) * 100;
+  const seScore   = S.hasSideEffects === false ? 100
+                  : ((((a[5]||0)+(a[6]||0)+(a[7]||0)+(a[8]||0)) - 4) / 16) * 100;
+  const convScore = ((((a[9]||0)+(a[10]||0)+(a[11]||0)) - 3) / 18) * 100;
+  const gsScore   = ((((a[12]||0)+(a[13]||0)+(a[14]||0)) - 3) / 18) * 100;
+  return { ef: efScore, se: seScore, conv: convScore, gs: gsScore };
+}
+
+function fmt(n) { return n.toFixed(1); }
+
+function renderResults() {
+  S.phase = 'results';
+  applyTheme('b1');
+  updateProgress(100, 'Evaluación completada', '100%');
+  setStepCounter('Resultados');
+
+  const sc = calcScores();
+  const a  = S.answers;
+
+  const rawRows =
+    [1,2,3].map(i=>`<tr><td>Q${i} — Eficacia</td><td class="td-val">${a[i]}</td></tr>`).join('') +
+    `<tr><td>Q4 — ¿Efectos secundarios?</td><td class="td-val">${S.hasSideEffects ? 'Sí' : 'No'}</td></tr>` +
+    (S.hasSideEffects
+      ? [5,6,7,8].map(i=>`<tr><td>Q${i} — Efectos secundarios</td><td class="td-val">${a[i]}</td></tr>`).join('')
+      : `<tr><td>Q5–Q8 — Omitidas (sin efectos secundarios)</td><td class="td-val">—</td></tr>`) +
+    [9,10,11].map(i=>`<tr><td>Q${i} — Conveniencia</td><td class="td-val">${a[i]}</td></tr>`).join('') +
+    [12,13,14].map(i=>`<tr><td>Q${i} — Satisfacción Global</td><td class="td-val">${a[i]}</td></tr>`).join('');
+
+  const formulaRows = `
+    <tr><td>Eficacia</td><td>[(${a[1]}+${a[2]}+${a[3]}−3) ÷ 18] × 100</td><td class="td-score">${fmt(sc.ef)}</td></tr>
+    <tr><td>Efectos Secundarios</td>
+        <td>${S.hasSideEffects ? `[(${a[5]}+${a[6]}+${a[7]}+${a[8]}−4) ÷ 16] × 100` : 'Q4 = No → Puntaje directo'}</td>
+        <td class="td-score">${fmt(sc.se)}</td></tr>
+    <tr><td>Conveniencia</td><td>[(${a[9]}+${a[10]}+${a[11]}−3) ÷ 18] × 100</td><td class="td-score">${fmt(sc.conv)}</td></tr>
+    <tr><td>Satisfacción Global</td><td>[(${a[12]}+${a[13]}+${a[14]}−3) ÷ 18] × 100</td><td class="td-score">${fmt(sc.gs)}</td></tr>
+  `;
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="results-outer">
+      <div class="results-title">Informe de Resultados</div>
+      <div class="results-subtitle">Puntajes normalizados en escala 0–100 · Protocolo TSQM v1.4</div>
+
+      <div class="id-strip">
+        <div><div class="id-item-label">ID Paciente</div><div class="id-item-value">${S.patientId}</div></div>
+        <div><div class="id-item-label">Fecha</div><div class="id-item-value">${S.date}</div></div>
+        <div><div class="id-item-label">Medicamento</div><div class="id-item-value">${S.medication}</div></div>
+      </div>
+
+      <div class="domain-grid">
+        <div class="domain-card dc-b1">
+          <div class="domain-label">Eficacia</div>
+          <div class="domain-score">${fmt(sc.ef)}</div>
+          <div class="domain-bar-track"><div class="domain-bar-fill" style="width:${sc.ef}%"></div></div>
+          <div class="domain-range">Escala 0 – 100</div>
+        </div>
+        <div class="domain-card dc-b2">
+          <div class="domain-label">Efectos Secundarios</div>
+          <div class="domain-score">${fmt(sc.se)}</div>
+          <div class="domain-bar-track"><div class="domain-bar-fill" style="width:${sc.se}%"></div></div>
+          <div class="domain-range">Escala 0 – 100</div>
+        </div>
+        <div class="domain-card dc-b3">
+          <div class="domain-label">Conveniencia</div>
+          <div class="domain-score">${fmt(sc.conv)}</div>
+          <div class="domain-bar-track"><div class="domain-bar-fill" style="width:${sc.conv}%"></div></div>
+          <div class="domain-range">Escala 0 – 100</div>
+        </div>
+        <div class="domain-card dc-b4">
+          <div class="domain-label">Satisfacción Global</div>
+          <div class="domain-score">${fmt(sc.gs)}</div>
+          <div class="domain-bar-track"><div class="domain-bar-fill" style="width:${sc.gs}%"></div></div>
+          <div class="domain-range">Escala 0 – 100</div>
+        </div>
+      </div>
+
+      <div class="data-section">
+        <div class="data-section-header">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          Fórmulas de cálculo aplicadas
+        </div>
+        <table>
+          <thead><tr><th>Dominio</th><th>Fórmula</th><th>Puntaje</th></tr></thead>
+          <tbody>${formulaRows}</tbody>
+        </table>
+      </div>
+
+      <div class="data-section">
+        <div class="data-section-header">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+          Respuestas registradas
+        </div>
+        <table>
+          <thead><tr><th>Ítem</th><th>Valor registrado</th></tr></thead>
+          <tbody>${rawRows}</tbody>
+        </table>
+      </div>
+
+      <div class="protocol-box">
+        <strong>Nota sobre el procesamiento:</strong> Los datos han sido procesados según el protocolo estándar del <strong>TSQM v1.4 (Treatment Satisfaction Questionnaire for Medication, versión 1.4)</strong>. Los puntajes están normalizados en una escala continua de 0 a 100 y se presentan exclusivamente con fines de documentación clínica. Este instrumento no provee interpretación cualitativa ni recomendaciones terapéuticas. Su uso e interpretación es responsabilidad exclusiva del profesional de salud tratante.
+      </div>
+
+      <button class="btn-restart" onclick="restartApp()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        Nueva evaluación
+      </button>
+    </div>
+  `;
+}
+
+function restartApp() {
+  Object.assign(S, { phase:'ident', patientId:'', date:'', medication:'', answers:{}, hasSideEffects:null, currentQIdx:0 });
+  renderIdent();
+}
+
+// ── Boot ────────────────────────────────────────────────────────────────────
+renderIdent();
+</script>
+</body>
+</html>
