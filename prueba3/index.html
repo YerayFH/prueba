@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>IV Compat Checker — UCI</title>
+  <title>CompatIV — YerayFH</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
@@ -26,6 +26,8 @@
       --accent: #5b8aff;
       --npt:    #b06aff;
       --hh:     58px;
+      --glass:  rgba(255, 255, 255, 0.03);
+      --glass-bdr: rgba(255, 255, 255, 0.1);
     }
 
     /* ══ GLOBAL HEADER ══ */
@@ -230,18 +232,20 @@
     /* Empty state */
     .empty-state {
       display: flex; flex-direction: column; align-items: center;
-      justify-content: center; padding: 3.5rem 1.5rem;
-      text-align: center; gap: 1.5rem; min-height: 40vh;
+      justify-content: center; padding: 4rem 1.5rem;
+      text-align: center; gap: 2rem; min-height: 50vh;
+      animation: fadeIn 0.8s ease;
     }
-    .empty-icon { font-size: 2.6rem; opacity: .22; }
-    .empty-state h3 { font-size: 1rem; font-weight: 700; color: #5b6680; }
-    .empty-steps { display: flex; flex-direction: column; gap: .7rem; text-align: left; max-width: 320px; }
-    .empty-step  { display: flex; align-items: flex-start; gap: .7rem; font-size: .82rem; color: #6a7890; line-height: 1.55; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .empty-icon { font-size: 3.5rem; filter: grayscale(1); opacity: 0.15; margin-bottom: -1rem; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 600; color: var(--sd); letter-spacing: -0.01em; }
+    .empty-steps { display: flex; flex-direction: column; gap: 1rem; text-align: left; max-width: 340px; }
+    .empty-step  { display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; color: #5b6680; line-height: 1.4; }
     .step-num {
-      min-width: 24px; height: 24px; border-radius: 50%;
-      background: var(--bg3); border: 1px solid var(--bdr);
-      color: var(--accent); font-size: .68rem; font-weight: 700;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+      min-width: 28px; height: 28px; border-radius: 50%;
+      background: var(--bg2); border: 1px solid var(--glass-bdr);
+      color: var(--accent); font-size: 0.75rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
 
     /* Topbar */
@@ -376,15 +380,93 @@
     /* Scrollbar */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 2px; }
+    /* --- YerayFH Unified Brand Styles --- */
+    :root {
+      --header-bg: var(--bg1);
+      --brd: var(--bdr);
+      --txt: #e8eaf0;
+    }
+    .app-header-unified{display:flex;align-items:center;gap:16px;padding:14px 20px;background:var(--header-bg);border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:110}
+    .hdr-logo{width:72px;height:72px;object-fit:contain;flex-shrink:0}
+    .hdr-text{display:flex;flex-direction:column;gap:2px}
+    .hdr-meta{font-size:11px;opacity:0.75;color:var(--txt)}
+    .hdr-meta a{color:inherit;text-decoration:none}
+    .hdr-meta a:hover{text-decoration:underline}
+    .hdr-dept{font-size:13px;font-weight:500;opacity:0.85;color:var(--txt)}
+    .hdr-app-name{font-size:24px;font-weight:800;letter-spacing:-0.3px;color:#2E86C1}
+    .app-footer-unified{text-align:center;padding:25px 20px;font-size:12px;opacity:0.7; border-top: 1px solid var(--brd); background: var(--bg0);}
+    /* --- Disclaimer Modal --- */
+    #safety-modal {
+      position: fixed; inset: 0; background: rgba(5,7,12,0.98);
+      display: flex; align-items: center; justify-content: center; z-index: 2000;
+      backdrop-filter: blur(10px); padding: 20px;
+    }
+    #safety-modal.hidden { display: none; }
+    .modal-content {
+      max-width: 500px; background: var(--bg1); border: 1px solid var(--glass-bdr);
+      padding: 2.5rem; border-radius: 24px; text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .modal-icon { font-size: 3rem; margin-bottom: 1.5rem; display: block; }
+    .modal-content h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; color: #fff; }
+    .modal-content p { font-size: 0.9rem; line-height: 1.6; color: var(--sd); margin-bottom: 2rem; }
+    .btn-accept {
+      background: var(--accent); color: #fff; border: none; padding: 1rem 2rem;
+      border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+      width: 100%; font-family: 'Syne', sans-serif; font-size: 1rem;
+    }
+    .btn-accept:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(91,138,255,0.3); }
+
+    /* UI Refinements */
+    .sidebar { background: var(--bg0); }
+    .fluido-btn { background: var(--glass); border-color: var(--glass-bdr); backdrop-filter: blur(5px); }
+    .accordion { border-color: var(--glass-bdr); background: var(--glass); }
+    .acc-hdr { background: transparent; }
+    .card { background: var(--glass); border-color: var(--glass-bdr); backdrop-filter: blur(10px); }
+    .empty-state { opacity: 0.8; transition: all 0.5s ease; }
+    
+    @media (max-width: 800px) {
+      .app-header-unified { padding: 10px 15px; gap: 10px; }
+      .hdr-logo { width: 48px; height: 48px; }
+      .hdr-app-name { font-size: 18px; }
+      .hdr-dept { font-size: 11px; }
+      .hdr-meta { display: none; }
+    }
   </style>
+  <link rel="icon" type="image/png" href="/appclinicas/img/icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/appclinicas/img/icon.png">
 </head>
-<body>
+<body class="disclaimer-active">
+
+<!-- MODAL SEGURIDAD -->
+<div id="safety-modal">
+  <div class="modal-content">
+    <span class="modal-icon">⚖️</span>
+    <h2>Aviso de Seguridad</h2>
+    <p>
+      Esta aplicación es una <strong>herramienta de apoyo orientativo</strong> para profesionales sanitarios. 
+      Los datos proceden de fuentes bibliográficas (Trissel, Stabilis) pero no sustituyen el juicio clínico ni las guías locales.
+      <br><br>
+      Al continuar, confirmas que eres profesional sanitario y que verificarás cualquier mezcla crítica con el servicio de Farmacia.
+    </p>
+    <button class="btn-accept" id="btn-accept-safety">Aceptar y continuar</button>
+  </div>
+</div>
+
+<header class="app-header-unified">
+  <img src="/appclinicas/img/icon.png" alt="Logo YerayFH" class="hdr-logo">
+  <div class="hdr-text">
+    <div class="hdr-meta">YerayFH - de la Mata &nbsp;&middot;&nbsp; Contacto: <a href="mailto:ydelamata01@gmail.com">ydelamata01@gmail.com</a></div>
+    <div class="hdr-dept">Farmacia Hospitalaria</div>
+    <div class="hdr-app-name">CompatIV®</div>
+  </div>
+</header>
 
 <!-- HEADER -->
 <header class="g-header">
   <div class="g-icon">💉</div>
   <div>
-    <div class="g-title">IV Compat Checker — UCI</div>
+    <div class="g-title">CompatIV</div>
     <div class="g-sub">Trissel's 19ª · Stabilis 4.0 · Micromedex · King Guide</div>
   </div>
   <span class="g-badge">v4.0 · Solo uso orientativo</span>
@@ -462,57 +544,68 @@ const FLUIDOS = [
 
 const FARMACOS = [
   // Sedoanalgesia
-  {id:'propofol',         label:'Propofol',            grupo:'Sedoanalgesia'},
-  {id:'midazolam',        label:'Midazolam',           grupo:'Sedoanalgesia'},
-  {id:'fentanilo',        label:'Fentanilo',           grupo:'Sedoanalgesia'},
-  {id:'remifentanilo',    label:'Remifentanilo',       grupo:'Sedoanalgesia'},
-  {id:'morfina',          label:'Morfina',             grupo:'Sedoanalgesia'},
-  {id:'dexmedetomidina',  label:'Dexmedetomidina',     grupo:'Sedoanalgesia'},
-  {id:'ketamina',         label:'Ketamina',            grupo:'Sedoanalgesia'},
+  {id:'propofol',         label:'Propofol',            grupo:'Sedoanalgesia', ph:'7.0-8.5'},
+  {id:'midazolam',        label:'Midazolam',           grupo:'Sedoanalgesia', ph:'3.0-3.5'},
+  {id:'fentanilo',        label:'Fentanilo',           grupo:'Sedoanalgesia', ph:'4.0-7.5'},
+  {id:'remifentanilo',    label:'Remifentanilo',       grupo:'Sedoanalgesia', ph:'2.5-3.5'},
+  {id:'morfina',          label:'Morfina',             grupo:'Sedoanalgesia', ph:'2.5-6.0'},
+  {id:'dexmedetomidina',  label:'Dexmedetomidina',     grupo:'Sedoanalgesia', ph:'4.5-7.0'},
+  {id:'ketamina',         label:'Ketamina',            grupo:'Sedoanalgesia', ph:'3.5-5.5'},
   // Relajantes NM
   {id:'rocuronio',        label:'Rocuronio',           grupo:'Relajantes NM'},
   {id:'cisatracurio',     label:'Cisatracurio',        grupo:'Relajantes NM'},
   // Vasoactivos
-  {id:'noradrenalina',    label:'Noradrenalina',       grupo:'Vasoactivos'},
-  {id:'adrenalina',       label:'Adrenalina',          grupo:'Vasoactivos'},
-  {id:'dopamina',         label:'Dopamina',            grupo:'Vasoactivos'},
-  {id:'dobutamina',       label:'Dobutamina',          grupo:'Vasoactivos'},
-  {id:'vasopresina',      label:'Vasopresina',         grupo:'Vasoactivos'},
+  {id:'noradrenalina',    label:'Noradrenalina',       grupo:'Vasoactivos', ph:'3.0-4.5'},
+  {id:'adrenalina',       label:'Adrenalina',          grupo:'Vasoactivos', ph:'2.2-5.0'},
+  {id:'dopamina',         label:'Dopamina',            grupo:'Vasoactivos', ph:'3.0-5.0'},
+  {id:'dobutamina',       label:'Dobutamina',          grupo:'Vasoactivos', ph:'2.5-5.5'},
+  {id:'vasopresina',      label:'Vasopresina',         grupo:'Vasoactivos', ph:'2.5-4.5'},
+  {id:'milrinona',        label:'Milrinona',           grupo:'Inotrópicos'},
+  {id:'levosimendan',     label:'Levosimendán',        grupo:'Inotrópicos'},
   // Cardiovascular
-  {id:'amiodarona',       label:'Amiodarona',          grupo:'Cardiovascular'},
-  {id:'esmolol',          label:'Esmolol',             grupo:'Cardiovascular'},
-  {id:'labetalol',        label:'Labetalol',           grupo:'Cardiovascular'},
-  {id:'nitroglicerina',   label:'Nitroglicerina',      grupo:'Cardiovascular'},
-  {id:'nitroprusiato',    label:'Nitroprusiato',       grupo:'Cardiovascular'},
-  {id:'nicardipino',      label:'Nicardipino',         grupo:'Cardiovascular'},  // NEW
-  {id:'clevidipino',      label:'Clevidipino',         grupo:'Cardiovascular'},  // NEW
-  // Neurológico
-  {id:'fenitoina',        label:'Fenitoína',           grupo:'Neurológico'},
+  {id:'amiodarona',       label:'Amiodarona',          grupo:'Cardiovascular', ph:'3.5-4.5'},
+  {id:'esmolol',          label:'Esmolol',             grupo:'Cardiovascular', ph:'4.5-5.5'},
+  {id:'labetalol',        label:'Labetalol',           grupo:'Cardiovascular', ph:'3.0-4.0'},
+  {id:'nitroglicerina',   label:'Nitroglicerina',      grupo:'Cardiovascular', ph:'3.0-6.5'},
+  {id:'nitroprusiato',    label:'Nitroprusiato',       grupo:'Cardiovascular', ph:'3.5-6.0'},
+  {id:'nicardipino',      label:'Nicardipino',         grupo:'Cardiovascular'},
+  {id:'clevidipino',      label:'Clevidipino',         grupo:'Cardiovascular'},
+  // Neurológico/Psiquiatría
+  {id:'fenitoina',        label:'Fenitoína',           grupo:'Neurológico', ph:'10.0-12.0'},
   {id:'levetiracetam',    label:'Levetiracetam',       grupo:'Neurológico'},
   {id:'acido_valproico',  label:'Ácido Valproico',     grupo:'Neurológico'},
+  {id:'haloperidol',      label:'Haloperidol',         grupo:'Psiquiatría'},
+  {id:'olanzapina',       label:'Olanzapina',          grupo:'Psiquiatría'},
   // Antibióticos
   {id:'meropenem',        label:'Meropenem',           grupo:'Antibióticos'},
   {id:'pip_tazo',         label:'Pip/Tazobactam',      grupo:'Antibióticos'},
   {id:'vancomicina',      label:'Vancomicina',         grupo:'Antibióticos'},
   {id:'linezolid',        label:'Linezolid',           grupo:'Antibióticos'},
+  {id:'tigeciclina',      label:'Tigeciclina',         grupo:'Antibióticos'},
+  {id:'metronidazol',     label:'Metronidazol',        grupo:'Antibióticos'},
+  {id:'ceftazidima_avi',  label:'Ceftazidima/Avibactam',grupo:'Antibióticos'},
+  {id:'remdesivir',       label:'Remdesivir',          grupo:'Antibióticos'},
   {id:'ceftriaxona',      label:'Ceftriaxona',         grupo:'Antibióticos'},
   {id:'cefepime',         label:'Cefepime',            grupo:'Antibióticos'},
   // Antifúngicos
   {id:'caspofungina',     label:'Caspofungina',        grupo:'Antifúngicos'},
   {id:'fluconazol',       label:'Fluconazol',          grupo:'Antifúngicos'},
-  // Electrolitos
+  {id:'anfo_b_lip',       label:'Amfotericina B Liposomal', grupo:'Antifúngicos'},
+  // Electrolitos / Buffers
   {id:'clk',              label:'Cloruro Potásico',    grupo:'Electrolitos'},
   {id:'mgso4',            label:'Sulfato de Magnesio', grupo:'Electrolitos'},
   {id:'gluconato_ca',     label:'Gluconato Cálcico',   grupo:'Electrolitos'},
+  {id:'bicarbonato',      label:'Bicarbonato Sódico',  grupo:'Buffers', ph:'7.0-8.5'},
   // Corticosteroides
   {id:'metilprednisolona',label:'Metilprednisolona',   grupo:'Corticosteroides'},
   {id:'dexametasona',     label:'Dexametasona',        grupo:'Corticosteroides'},
   {id:'hidrocortisona',   label:'Hidrocortisona',      grupo:'Corticosteroides'},
   // Otros
-  {id:'furosemida',       label:'Furosemida',          grupo:'Diuréticos'},
-  {id:'heparina',         label:'Heparina',            grupo:'Anticoagulantes'},
-  {id:'insulina',         label:'Insulina Regular',    grupo:'Metabólicos'},
-  {id:'pantoprazol',      label:'Pantoprazol',         grupo:'IBP'},
+  {id:'furosemida',       label:'Furosemida',          grupo:'Diuréticos', ph:'8.0-9.3'},
+  {id:'heparina',         label:'Heparina',            grupo:'Anticoagulantes', ph:'5.0-8.0'},
+  {id:'insulina',         label:'Insulina Regular',    grupo:'Metabólicos', ph:'7.0-7.8'},
+  {id:'pantoprazol',      label:'Pantoprazol',         grupo:'IBP', ph:'9.0-10.5'},
+  {id:'vecuronio',        label:'Vecuronio',           grupo:'Relajantes NM'},
 ];
 
 /* ── Compatibilidad fármaco–fluido ── */
@@ -531,7 +624,7 @@ const CF = {
   dopamina:         {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'I',  nota:'Compatible con fluidos estándar. Incompatible con bicarbonato. No añadir a NPT.',ref:'Trissel 19ª'},
   dobutamina:       {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'I',  nota:'Estable en todos los fluidos estándar 24-48h. No añadir a NPT.',ref:'Trissel 19ª'},
   vasopresina:      {nacl09:'C', sg5:'C', rl:'SD',plasma:'SD',npt:'SD', nota:'Preferiblemente en SF o SG5%. Sin datos suficientes en RL, Plasmalyte y NPT.',ref:'Stabilis 4.0'},
-  amiodarona:       {nacl09:'I', sg5:'C', rl:'I', plasma:'SD',npt:'I',  nota:'⚠️ SOLO en SG5%. SF y RL causan precipitación. Vía central o periférica ≥18G. Fototóxico.',ref:'Trissel 19ª'},
+  amiodarona:       {nacl09:'I', sg5:'C', rl:'I', plasma:'SD',npt:'I',  nota:'⚠️ SOLO en SG5%. SF y RL causan precipitación inmediata por diferencia de pH. No mezclar con fluidos alcalinos.',ref:'Trissel 19ª'},
   esmolol:          {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'SD', nota:'Compatible en todos los fluidos estándar. No mezclar con bicarbonato. Sin datos en NPT.',ref:'Trissel 19ª'},
   labetalol:        {nacl09:'C', sg5:'I', rl:'SD',plasma:'SD',npt:'I',  nota:'Incompatible con SG5% (precipitación). Usar exclusivamente en SF.',ref:'Trissel 19ª'},
   nitroglicerina:   {nacl09:'C', sg5:'C', rl:'SD',plasma:'SD',npt:'I',  nota:'Compatible en SF y SG5%. Adsorción en PVC: usar equipos sin PVC. Fotosensible.',ref:'Trissel 19ª'},
@@ -566,6 +659,19 @@ const CF = {
   heparina:         {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'V',  nota:'Compatible con fluidos estándar. En NPT: se añade en dosis profiláctica; verificar protocolo local.',ref:'Trissel 19ª'},
   insulina:         {nacl09:'C', sg5:'I', rl:'SD',plasma:'SD',npt:'V',  nota:'⚠️ Evitar SG5%. Adsorción en PVC; purgar línea. En NPT: se añade a la bolsa en protocolos estándar.',ref:'Trissel 19ª'},
   pantoprazol:      {nacl09:'C', sg5:'I', rl:'I', plasma:'SD',npt:'I',  nota:'Solo compatible en SF. Precipita con SG5% y RL. pH muy sensible. No añadir a NPT.',ref:'Stabilis 4.0'},
+  milrinona:        {nacl09:'C', sg5:'C', rl:'SD',plasma:'SD',npt:'SD', nota:'Compatible en SF y SG5%. Incompatible con Furosemida (precipitado inmediato).',ref:'Trissel 19ª'},
+  levosimendan:     {nacl09:'SD',sg5:'C', rl:'SD',plasma:'SD',npt:'SD', nota:'Dilución recomendada en SG5% según ficha técnica. Datos de estabilidad limitados en SF.',ref:'Ficha técnica'},
+  tigeciclina:      {nacl09:'C', sg5:'C', rl:'C', plasma:'SD',npt:'SD', nota:'Compatible en SF, SG5% y RL. Reconstituir previamente con SF o SG5%. No en NPT.',ref:'Stabilis 4.0'},
+  metronidazol:     {nacl09:'C', sg5:'C', rl:'C', plasma:'C', npt:'SD', nota:'⚠️ SENSIBLE AL FRÍO. No refrigerar; puede cristalizar. Proteger de la luz. Compatible con fluidos estándar.',ref:'Trissel 19ª'},
+  ceftazidima_avi:  {nacl09:'C', sg5:'C', rl:'C', plasma:'SD',npt:'SD', nota:'Compatible en SF, SG5% y RL. Estable 8-12h a temperatura ambiente tras dilución.',ref:'Ficha técnica'},
+  remdesivir:       {nacl09:'C', sg5:'SD',rl:'SD',plasma:'SD',npt:'SD', nota:'Ficha técnica: Dilución recomendada en SF 0.9%. Datos limitados en otros fluidos.',ref:'Ficha técnica'},
+  haloperidol:      {nacl09:'C', sg5:'C', rl:'SD',plasma:'SD',npt:'I',  nota:'Compatible en SF y SG5%. Múltiples incompatibilidades en Y por pH.',ref:'Trissel 19ª'},
+  olanzapina:       {nacl09:'C', sg5:'SD',rl:'SD',plasma:'SD',npt:'I',  nota:'Reconstituir con agua para inyectables y diluir en SF. Inestable en otros medios.',ref:'Ficha técnica'},
+  anfo_b_lip:       {nacl09:'I', sg5:'C', rl:'I', plasma:'I', npt:'I',  severe:true,
+    nota:'☠️ EXCLUSIVAMENTE EN SG5%. El NaCl provoca la precipitación inmediata del fármaco liposomal. Vía dedicada obligatoria si es posible.',ref:'Trissel 19ª / Ficha técnica'},
+  bicarbonato:      {nacl09:'C', sg5:'C', rl:'I', plasma:'I', npt:'I',
+    nota:'⚠️ pH MUY ALCALINO (8.0-8.5). Incompatible con calcio (precipita carbonato) y ringer lactato. Inactiva catecolaminas. Lavar vía abundantemente.',ref:'Trissel 19ª'},
+  vecuronio:        {nacl09:'C', sg5:'C', rl:'C', plasma:'SD',npt:'I',  nota:'Compatible en SF, SG5% y RL. No añadir a NPT.',ref:'Stabilis 4.0'},
 };
 
 /* ── Y-site raw data ── */
@@ -787,6 +893,42 @@ const YSITE_RAW = [
   ['pip_tazo','fluconazol','C','Compatible en Y-site.','Stabilis 4.0'],
   ['insulina','dexmedetomidina','SD','Sin datos disponibles.','SD'],
   ['pantoprazol','heparina','I','Incompatible. No mezclar.','Stabilis 4.0'],
+  ['milrinona','furosemida','I','⚠️ Incompatibilidad física masiva. Precipitado blanco inmediato.','Trissel 19ª'],
+  ['milrinona','noradrenalina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['milrinona','dopamina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['milrinona','dobutamina','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['levosimendan','noradrenalina','SD','Sin datos de compatibilidad física en Y. Se recomienda vía dedicada.','Ficha técnica'],
+  ['tigeciclina','vancomicina','SD','Sin datos específicos. Precaución.','SD'],
+  ['tigeciclina','meropenem','C','Compatible en Y-site según estudios limitados.','Stabilis 4.0'],
+  ['bicarbonato','noradrenalina','I','☠️ Inactivación química de la noradrenalina por el pH alcalino del bicarbonato.','Trissel 19ª',true],
+  ['bicarbonato','adrenalina','I','☠️ Inactivación de la catecolamina. No administrar en Y.','Trissel 19ª',true],
+  ['bicarbonato','dopamina','I','Incompatible. Inactivación química por pH.','Trissel 19ª'],
+  ['bicarbonato','dobutamina','I','Incompatible en Y-site. Inactivación.','Trissel 19ª'],
+  ['bicarbonato','gluconato_ca','I','☠️ Precipitación inmediata de carbonato cálcico (sólido blanco). Obstrucción de vía.','Trissel 19ª',true],
+  ['bicarbonato','amiodarona','I','Precipitado blanco inmediato por pH. Incompatible.','Stabilis 4.0'],
+  ['bicarbonato','midazolam','I','Precipitación del midazolam en medio alcalino.','Trissel 19ª'],
+  ['bicarbonato','haloperidol','I','Incompatible en Y-site. Precipitación visible.','Trissel 19ª'],
+  ['bicarbonato','cisatracurio','I','Incompatible. Degradación rápida del relajante.','Stabilis 4.0'],
+  ['bicarbonato','vecuronio','I','Incompatible en Y-site.','Stabilis 4.0'],
+  ['anfo_b_lip','propofol','I','⚠️ Ruptura de ambas emulsiones. Incompatible en Y.','Trissel 19ª'],
+  ['anfo_b_lip','heparina','I','Incompatible. Precipitado inmediato.','Trissel 19ª'],
+  ['anfo_b_lip','meropenem','I','Incompatible en Y-site.','Ficha técnica'],
+  ['anfo_b_lip','furosemida','I','Incompatible por pH. Precipitación.','Stabilis 4.0'],
+  ['anfo_b_lip','vancomicina','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['ceftazidima_avi','metronidazol','C','Compatible en Y-site.','Stabilis 4.0'],
+  ['ceftazidima_avi','meropenem','C','Compatible en Y-site.','Ficha técnica'],
+  ['ceftazidima_avi','vancomicina','C','Compatible en Y-site a concentraciones estándar.','Ficha técnica'],
+  ['haloperidol','furosemida','I','Precipitado inmediato. Incompatible en Y.','Trissel 19ª'],
+  ['haloperidol','heparina','I','Incompatible. No mezclar.','Trissel 19ª'],
+  ['haloperidol','midazolam','C','Compatible en Y-site (mezcla común en agitación).','Stabilis 4.0'],
+  ['metronidazol','meropenem','C','Compatible en Y-site.','Trissel 19ª'],
+  ['metronidazol','pip_tazo','C','Compatible en Y-site.','Trissel 19ª'],
+  ['metronidazol','vancomicina','C','Compatible en Y-site.','Trissel 19ª'],
+  ['remdesivir','dexametasona','C','Compatible en Y-site.','Ficha técnica'],
+  ['propofol','bicarbonato','I','☠️ Ruptura de la emulsión por pH alcalino.','Stabilis 4.0',true],
+  ['propofol','amiodarona','I','Incompatible. Ruptura de emulsión lipídica.','Trissel 19ª'],
+  ['vecuronio','heparina','I','Incompatible en Y-site.','Trissel 19ª'],
+  ['vecuronio','furosemida','I','Precipitado inmediato.','Stabilis 4.0'],
 ];
 
 /* Build bidirectional Y-site map */
@@ -832,12 +974,15 @@ function sbadgeHTML(estado,severe){
     :`<div class="sbadge ${estado}">${estado}</div>`;
 }
 
-function rrowHTML(label,compat){
+function rrowHTML(label,compat,ph=null){
   const cls=compat.severe?'SEVERE':compat.estado;
   return `<div class="rrow ${cls}">
     ${sbadgeHTML(compat.estado,compat.severe)}
     <div class="rinfo">
-      <div class="rdrug${compat.severe?' sev':''}">${label}</div>
+      <div class="rdrug${compat.severe?' sev':''}">
+        ${label}
+        ${ph?`<span style="font-size:0.6rem;color:var(--sd);font-weight:400;margin-left:5px">pH ${ph}</span>`:''}
+      </div>
       <div class="rnote">${compat.nota}</div>
       ${compat.ref?`<div class="rref">📚 ${compat.ref}</div>`:''}
     </div>
@@ -1006,7 +1151,7 @@ function renderPanel(){
         const nota=cf?.nota||'Sin datos para este fluido.';
         const ref=cf?.ref||'—';
         const severe=(cf?.severe||false)||(fid==='ceftriaxona'&&['rl','plasma','npt'].includes(fluidoSel));
-        return rrowHTML(labelOf(fid),{estado,nota,ref,severe});
+        return rrowHTML(labelOf(fid),{estado,nota,ref,severe},FARMACOS.find(f=>f.id===fid)?.ph);
       }).join('')}
     </div>
   </div>`;
@@ -1060,10 +1205,11 @@ function renderPanel(){
   document.getElementById('btn-copy')?.addEventListener('click',()=>{
     const lines=[
       '═══════════════════════════════════════',
-      '  RESUMEN COMPATIBILIDAD IV — UCI',
+      '  RESUMEN COMPATIBILIDAD — CompatIV',
       `  Fluido: ${fluidoLabel}`,
       `  Fármacos: ${farmSel.map(labelOf).join(', ')}`,
-      '═══════════════════════════════════════','',
+      '═══════════════════════════════════════',
+      '  © YerayFH - Farmacia Hospitalaria','',
       '── COMPATIBILIDAD CON FLUIDO ──',
     ];
     farmSel.forEach(fid=>{
@@ -1078,7 +1224,7 @@ function renderPanel(){
       });
     }
     if(uniqSev.length) lines.push('','⚠️ ALERTAS CRÍTICAS:',...uniqSev.map(s=>`   ☠️ ${s}`));
-    lines.push('','AVISO: Herramienta de apoyo. Verificar con Farmacia. No sustituye criterio clínico.');
+    lines.push('','AVISO: Herramienta de apoyo orientativo basada en Trissel. Verificar con Farmacia.');
     navigator.clipboard.writeText(lines.join('\n')).then(()=>{
       const btn=document.getElementById('btn-copy');
       const toast=document.getElementById('toast');
@@ -1093,9 +1239,33 @@ function renderPanel(){
 }
 
 /* ══════════════════════════════════════════
+   SAFETY MODAL LOGIC
+══════════════════════════════════════════ */
+function initSafetyModal(){
+  const modal = document.getElementById('safety-modal');
+  const btn = document.getElementById('btn-accept-safety');
+  
+  if(localStorage.getItem('compattiv_safety_accepted') === 'true'){
+    modal.classList.add('hidden');
+    document.body.classList.remove('disclaimer-active');
+  }
+
+  btn.addEventListener('click', () => {
+    localStorage.setItem('compattiv_safety_accepted', 'true');
+    modal.style.opacity = '0';
+    modal.style.transition = 'opacity 0.5s ease';
+    setTimeout(() => {
+      modal.classList.add('hidden');
+      document.body.classList.remove('disclaimer-active');
+    }, 500);
+  });
+}
+
+/* ══════════════════════════════════════════
    INIT
 ══════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded',()=>{
+  initSafetyModal();
   renderFluidos();
   renderAccordions();
 
@@ -1112,5 +1282,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 });
 </script>
+<footer class="app-footer-unified">&copy; 2026 YerayFH - de la Mata</footer>
 </body>
 </html>
