@@ -39,7 +39,7 @@
         .hdr-app-name { font-size: 24px; font-weight: 800; letter-spacing: -0.3px; color: var(--primary); }
 
         /* ── LAYOUT ── */
-        main { flex: 1; display: grid; grid-template-columns: 550px 1fr; gap: 0; height: calc(100vh - 93px); overflow: hidden; }
+        main { flex: 1; display: grid; grid-template-columns: 560px 1fr; gap: 0; height: calc(100vh - 93px); overflow: hidden; }
         @media (max-width: 1300px) {
             main { grid-template-columns: 1fr; overflow-y: auto; height: auto; }
         }
@@ -55,14 +55,33 @@
         .card-title { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
         
         .field { margin-bottom: 14px; }
-        .field-label { display: block; font-size: 12px; font-weight: 500; color: #4b5563; margin-bottom: 6px; }
+        .field-label { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 500; color: #4b5563; margin-bottom: 6px; }
         
-        input[type="text"], input[type="number"] {
+        input[type="text"], input[type="number"], select {
             width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px;
             font-size: 15px; color: #111827; transition: border-color 0.2s, box-shadow 0.2s;
-            height: 46px;
+            height: 46px; background-color: #fff;
         }
-        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46, 134, 193, 0.1); }
+        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46, 134, 193, 0.1); }
+
+        /* Custom Segment Control for Scale */
+        .scale-selector { display: flex; background: #f3f4f6; border-radius: 10px; padding: 4px; gap: 4px; margin-bottom: 16px; }
+        .scale-option { 
+            flex: 1; text-align: center; padding: 8px; border-radius: 7px; font-size: 13px; font-weight: 600; 
+            cursor: pointer; transition: all 0.2s; color: #6b7280; display: flex; align-items: center; justify-content: center; gap: 6px;
+            position: relative;
+        }
+        .scale-option.active { background: #fff; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        /* Info Icon and Tooltip */
+        .info-i { width: 14px; height: 14px; border-radius: 50%; background: #d1d5db; color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: help; }
+        .scale-option.active .info-i { background: var(--primary); }
+        .tooltip { 
+            visibility: hidden; width: 220px; background-color: #374151; color: #fff; text-align: left; border-radius: 6px; padding: 10px; 
+            position: absolute; z-index: 101; bottom: 125%; left: 50%; margin-left: -110px; opacity: 0; transition: opacity 0.3s; font-size: 11px; line-height: 1.4; font-weight: 400; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .tooltip::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #374151 transparent transparent transparent; }
+        .info-i:hover + .tooltip { visibility: visible; opacity: 1; }
 
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -111,31 +130,68 @@
         <div class="sidebar">
             <div class="card">
                 <div class="card-title">
-                    Personalización del Gráfico
+                    Configuración del Análisis
                     <span id="save-status" class="save-indicator">✓ Autoguardado</span>
                 </div>
+                
+                <div class="field">
+                    <label class="field-label">Escala del Eje X</label>
+                    <div class="scale-selector">
+                        <div class="scale-option active" id="scale-log" onclick="setScale('log')">
+                            Logarítmica
+                            <span class="info-i">i</span>
+                            <div class="tooltip">
+                                <strong>Uso recomendado:</strong><br>
+                                • Hazard Ratio (HR)<br>
+                                • Relative Risk (RR)<br>
+                                • Odds Ratio (OR)<br>
+                                • Incidence Rate Ratio (IRR)<br>
+                                • Ratio de Prevalencia (PR)
+                            </div>
+                        </div>
+                        <div class="scale-option" id="scale-linear" onclick="setScale('linear')">
+                            Lineal / Normal
+                            <span class="info-i">i</span>
+                            <div class="tooltip">
+                                <strong>Uso recomendado:</strong><br>
+                                • Diferencia de Riesgo (RAR / RD)<br>
+                                • NNT (Number Needed to Treat)<br>
+                                • Mean Difference (MD)<br>
+                                • Diferencia de Medias Estandarizada (SMD)<br>
+                                • Cambios Absolutos
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="field">
                     <label class="field-label">Título del Gráfico</label>
                     <input type="text" id="plot-title" placeholder="Ej: Análisis de Riesgo Indirecto" value="Comparación de Medicamentos" oninput="scheduleSave()">
                 </div>
-                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px;">
+
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 12px;">
                     <div class="field">
                         <label class="field-label">Margen Delta (Δ)</label>
-                        <input type="number" id="delta-val" placeholder="Opcional" step="0.01" min="1.01" oninput="updateReciprocal(); scheduleSave()">
+                        <input type="number" id="delta-val" placeholder="Opcional" step="0.01" oninput="updateReciprocal(); scheduleSave()">
                     </div>
                     <div class="field">
                         <label class="field-label">Inverso (1/Δ)</label>
                         <input type="number" id="inv-delta-val" placeholder="-" readonly style="background: #f3f4f6; color: #6b7280;">
                     </div>
+                    <div class="field">
+                        <label class="field-label">Valor Nulo</label>
+                        <input type="number" id="null-val" value="1" step="0.1" oninput="scheduleSave()">
+                    </div>
                 </div>
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="field">
-                        <label class="field-label">Favorece Izquierda (HR < 1)</label>
-                        <input type="text" id="label-left" value="Tratamiento" oninput="scheduleSave()">
+                        <label class="field-label">Lado Izquierdo (←)</label>
+                        <input type="text" id="label-left" value="Favorece Tratamiento" oninput="scheduleSave()">
                     </div>
                     <div class="field">
-                        <label class="field-label">Favorece Derecha (HR > 1)</label>
-                        <input type="text" id="label-right" value="Control" oninput="scheduleSave()">
+                        <label class="field-label">Lado Derecho (→)</label>
+                        <input type="text" id="label-right" value="Favorece Control" oninput="scheduleSave()">
                     </div>
                 </div>
             </div>
@@ -145,12 +201,12 @@
                     Datos de Comparación
                     <button class="btn btn-outline" style="padding: 4px 10px; font-size: 11px;" onclick="addRow(); scheduleSave()">+ Añadir Fila</button>
                 </div>
-                <div style="max-height: 480px; overflow-y: auto; padding-right: 8px;">
+                <div style="max-height: 400px; overflow-y: auto; padding-right: 8px;">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th style="width: 45%;">Medicamento</th>
-                                <th style="width: 15%;">HR</th>
+                                <th style="width: 15%;">Medida</th>
                                 <th style="width: 35%;">IC 95% (Linf - Lsup)</th>
                                 <th style="width: 5%;"></th>
                             </tr>
@@ -166,7 +222,7 @@
                     <button class="btn btn-outline" style="width: 50px; height: 50px;" onclick="resetData()" title="Limpiar todo">🗑</button>
                 </div>
             </div>
-            <div class="scientific-note">El autoguardado local protege tus datos entre sesiones. La exportación PNG es de alta fidelidad.</div>
+            <div class="scientific-note">Las escalas de asociación (log) permiten evaluar proporciones, mientras que las escalas de diferencia (lineal) evalúan efectos absolutos.</div>
         </div>
 
         <div class="content">
@@ -181,25 +237,43 @@
     </main>
 
     <footer class="app-footer-unified">
-        &copy; 2026 YerayFH - de la Mata &middot; PlottyFor® v1.3
+        &copy; 2026 YerayFH - de la Mata &middot; PlottyFor®
     </footer>
 
     <script>
         let medCount = 0;
         let saveTimeout = null;
+        let currentScale = 'log';
 
-        function addRow(name = '', hr = '', lci = '', uci = '') {
+        function setScale(scale) {
+            currentScale = scale;
+            document.getElementById('scale-log').classList.toggle('active', scale === 'log');
+            document.getElementById('scale-linear').classList.toggle('active', scale === 'linear');
+            
+            // Auto-adjust null value
+            const nullInput = document.getElementById('null-val');
+            if (scale === 'log') {
+                if (nullInput.value === '0') nullInput.value = '1';
+            } else {
+                if (nullInput.value === '1') nullInput.value = '0';
+            }
+            
+            scheduleSave();
+            generatePlot();
+        }
+
+        function addRow(name = '', val = '', lci = '', uci = '') {
             medCount++;
             const tbody = document.getElementById('med-tbody');
             const tr = document.createElement('tr');
             tr.id = `row-${medCount}`;
             tr.innerHTML = `
-                <td><input type="text" placeholder="Fármaco..." value="${name}" class="med-name" oninput="scheduleSave()" style="width: 100%; min-width: 150px;"></td>
-                <td><input type="number" placeholder="1.0" step="0.01" value="${hr}" class="med-hr" oninput="scheduleSave()" style="width: 100%; min-width: 60px;"></td>
+                <td><input type="text" placeholder="Fármaco..." value="${name}" class="med-name" oninput="scheduleSave()" style="width: 100%;"></td>
+                <td><input type="number" placeholder="1.0" step="0.001" value="${val}" class="med-val" oninput="scheduleSave()" style="width: 100%;"></td>
                 <td>
                     <div style="display: flex; gap: 6px; width: 100%;">
-                        <input type="number" placeholder="Linf" step="0.01" value="${lci}" class="med-lci" oninput="scheduleSave()" style="width: 50%; min-width: 60px;">
-                        <input type="number" placeholder="Lsup" step="0.01" value="${uci}" class="med-uci" oninput="scheduleSave()" style="width: 50%; min-width: 60px;">
+                        <input type="number" placeholder="Linf" step="0.001" value="${lci}" class="med-lci" oninput="scheduleSave()" style="width: 50%;">
+                        <input type="number" placeholder="Lsup" step="0.001" value="${uci}" class="med-uci" oninput="scheduleSave()" style="width: 50%;">
                     </div>
                 </td>
                 <td style="text-align: right;"><button class="btn btn-danger" onclick="removeRow(${medCount}); scheduleSave()">×</button></td>
@@ -215,7 +289,7 @@
         function updateReciprocal() {
             const deltaStr = document.getElementById('delta-val').value;
             const delta = parseFloat(deltaStr);
-            if (!isNaN(delta) && delta !== 0) {
+            if (!isNaN(delta) && delta !== 0 && currentScale === 'log') {
                 document.getElementById('inv-delta-val').value = (1 / delta).toFixed(3);
             } else {
                 document.getElementById('inv-delta-val').value = '';
@@ -233,19 +307,21 @@
             rows.forEach(row => {
                 data.push({
                     name: row.querySelector('.med-name').value,
-                    hr: row.querySelector('.med-hr').value,
+                    val: row.querySelector('.med-val').value,
                     lci: row.querySelector('.med-lci').value,
                     uci: row.querySelector('.med-uci').value
                 });
             });
             const state = {
+                scale: currentScale,
                 title: document.getElementById('plot-title').value,
                 delta: document.getElementById('delta-val').value,
+                nullVal: document.getElementById('null-val').value,
                 labelLeft: document.getElementById('label-left').value,
                 labelRight: document.getElementById('label-right').value,
                 data: data
             };
-            localStorage.setItem('plottyfor_state', JSON.stringify(state));
+            localStorage.setItem('plottyfor_state_v2', JSON.stringify(state));
             
             const indicator = document.getElementById('save-status');
             indicator.classList.add('show');
@@ -253,25 +329,24 @@
         }
 
         function loadState() {
-            const saved = localStorage.getItem('plottyfor_state');
+            const saved = localStorage.getItem('plottyfor_state_v2');
             if (saved) {
                 try {
                     const state = JSON.parse(saved);
-                    document.getElementById('plot-title').value = state.title || '';
+                    setScale(state.scale || 'log');
+                    document.getElementById('plot-title').value = state.title || 'Comparación de Medicamentos';
                     document.getElementById('delta-val').value = state.delta || '';
-                    document.getElementById('label-left').value = state.labelLeft || 'Tratamiento';
-                    document.getElementById('label-right').value = state.labelRight || 'Control';
+                    document.getElementById('null-val').value = state.nullVal !== undefined ? state.nullVal : (currentScale === 'log' ? '1' : '0');
+                    document.getElementById('label-left').value = state.labelLeft || 'Favorece Tratamiento';
+                    document.getElementById('label-right').value = state.labelRight || 'Favorece Control';
                     
                     document.getElementById('med-tbody').innerHTML = '';
                     if (state.data && state.data.length > 0) {
-                        state.data.forEach(d => addRow(d.name, d.hr, d.lci, d.uci));
+                        state.data.forEach(d => addRow(d.name, d.val, d.lci, d.uci));
                     } else {
                         addDefaultRows();
                     }
-                } catch (e) {
-                    console.error("Error loading state", e);
-                    addDefaultRows();
-                }
+                } catch (e) { addDefaultRows(); }
             } else {
                 addDefaultRows();
             }
@@ -280,51 +355,46 @@
         }
 
         function addDefaultRows() {
-            addRow('Fármaco A vs Control', 0.82, 0.71, 0.95);
-            addRow('Fármaco B vs Control', 1.12, 0.98, 1.28);
+            addRow('Tratamiento A', 0.82, 0.71, 0.95);
+            addRow('Tratamiento B', 1.12, 0.98, 1.28);
         }
 
         function resetData() {
-            if (confirm('¿Estás seguro de que quieres borrar todos los datos?')) {
-                document.getElementById('med-tbody').innerHTML = '';
-                document.getElementById('plot-title').value = 'Comparación de Medicamentos';
-                document.getElementById('delta-val').value = '';
-                document.getElementById('label-left').value = 'Tratamiento';
-                document.getElementById('label-right').value = 'Control';
-                updateReciprocal();
-                scheduleSave();
-                addRow();
+            if (confirm('¿Borrar todos los datos?')) {
+                localStorage.removeItem('plottyfor_state_v2');
+                location.reload();
             }
         }
 
         function generatePlot() {
             const rows = document.querySelectorAll('#med-tbody tr');
-            const data = [];
+            const dataArr = [];
             rows.forEach(row => {
                 const n = row.querySelector('.med-name').value;
-                const h = parseFloat(row.querySelector('.med-hr').value);
+                const v = parseFloat(row.querySelector('.med-val').value);
                 const l = parseFloat(row.querySelector('.med-lci').value);
                 const u = parseFloat(row.querySelector('.med-uci').value);
-                if (n && !isNaN(h) && !isNaN(l) && !isNaN(u)) data.push({ n, h, l, u });
+                if (n && !isNaN(v) && !isNaN(l) && !isNaN(u)) dataArr.push({ n, v, l, u });
             });
 
-            if (data.length === 0) { return; }
+            if (dataArr.length === 0) { return; }
 
-            const customTitle = document.getElementById('plot-title').value;
-            const deltaVal = parseFloat(document.getElementById('delta-val').value);
+            const title = document.getElementById('plot-title').value;
+            const delta = parseFloat(document.getElementById('delta-val').value);
+            const nullV = parseFloat(document.getElementById('null-val').value);
             const lblL = document.getElementById('label-left').value;
             const lblR = document.getElementById('label-right').value;
 
-            const plotData = [...data].reverse();
+            const plotData = [...dataArr].reverse();
             
             const trace = {
-                x: plotData.map(d => d.h),
+                x: plotData.map(d => d.v),
                 y: plotData.map(d => d.n),
                 error_x: {
                     type: 'data',
                     symmetric: false,
-                    array: plotData.map(d => d.u - d.h),
-                    arrayminus: plotData.map(d => d.h - d.l),
+                    array: plotData.map(d => d.u - d.v),
+                    arrayminus: plotData.map(d => d.v - d.l),
                     color: '#222',
                     thickness: 1.8,
                     width: 5
@@ -333,70 +403,56 @@
                 marker: {
                     symbol: 'square',
                     size: 11,
-                    color: plotData.map(d => d.h < 1 ? '#2471A3' : '#A93226'),
+                    color: plotData.map(d => d.v < nullV ? '#2471A3' : '#A93226'),
                     line: { color: 'white', width: 1 }
                 },
                 type: 'scatter',
-                name: 'HR',
-                hovertemplate: '<b>%{y}</b><br>HR: %{x:.2f}<br>IC: [%{customdata[0]:.2f}, %{customdata[1]:.2f}]<extra></extra>',
+                hovertemplate: '<b>%{y}</b><br>Valor: %{x:.3f}<br>IC: [%{customdata[0]:.3f}, %{customdata[1]:.3f}]<extra></extra>',
                 customdata: plotData.map(d => [d.l, d.u])
             };
 
-            const shapes = [{ type: 'line', x0: 1, x1: 1, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#111', width: 2 } }];
+            const shapes = [{ type: 'line', x0: nullV, x1: nullV, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#000', width: 2 } }];
             const annotations = [
-                {
-                    xref: 'paper', yref: 'paper', x: 1, y: -0.2,
-                    text: 'PlottyFor® - YerayFH',
-                    showarrow: false, font: { size: 10, color: '#9ca3af' }, xanchor: 'right'
-                }
+                { xref: 'paper', yref: 'paper', x: 1, y: -0.22, text: 'PlottyFor® - YerayFH', showarrow: false, font: { size: 10, color: '#9ca3af' }, xanchor: 'right' }
             ];
 
-            if (!isNaN(deltaVal)) {
-                const invD = 1 / deltaVal;
-                shapes.push(
-                    { type: 'line', x0: deltaVal, x1: deltaVal, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#ccc', width: 1.2, dash: 'dash' } },
-                    { type: 'line', x0: invD, x1: invD, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#ccc', width: 1.2, dash: 'dash' } }
-                );
-                annotations.push(
-                    { x: deltaVal, y: plotData.length - 0.2, xref: 'x', yref: 'y', text: 'Δ', showarrow: false, font: { size: 10, color: '#aaa' }, yanchor: 'bottom' },
-                    { x: invD, y: plotData.length - 0.2, xref: 'x', yref: 'y', text: '1/Δ', showarrow: false, font: { size: 10, color: '#aaa' }, yanchor: 'bottom' }
-                );
+            if (!isNaN(delta)) {
+                // Main Delta line
+                shapes.push({ type: 'line', x0: delta, x1: delta, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#555', width: 2, dash: 'dash' } });
+                annotations.push({ x: delta, y: plotData.length - 0.3, xref: 'x', yref: 'y', text: `Δ = ${delta}`, showarrow: false, font: { size: 11, color: '#333', weight: 'bold' }, yanchor: 'bottom', bgcolor: 'rgba(255,255,255,0.8)' });
+                
+                // Reciprocal if log scale
+                if (currentScale === 'log') {
+                    const invD = 1 / delta;
+                    shapes.push({ type: 'line', x0: invD, x1: invD, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#888', width: 1.5, dash: 'dash' } });
+                    annotations.push({ x: invD, y: plotData.length - 0.3, xref: 'x', yref: 'y', text: `${invD.toFixed(2)}`, showarrow: false, font: { size: 10, color: '#666' }, yanchor: 'bottom' });
+                }
             }
 
             const layout = {
-                title: {
-                    text: customTitle,
-                    font: { family: 'Inter', size: 19, weight: 600, color: '#000' },
-                    pad: { b: 15 }
-                },
+                title: { text: title, font: { family: 'Inter', size: 20, weight: 600, color: '#000' }, pad: { b: 20 } },
                 xaxis: {
-                    type: 'log',
-                    title: { text: 'Hazard Ratio (HR)', font: { size: 13, weight: 500, color: '#444' } },
-                    tickformat: '.2f',
+                    type: currentScale === 'log' ? 'log' : 'linear',
+                    title: { text: currentScale === 'log' ? 'Escala Logarítmica' : 'Escala Lineal', font: { size: 13, weight: 500, color: '#666' } },
+                    tickformat: currentScale === 'log' ? '.2f' : '.3f',
                     gridcolor: '#f3f4f6',
                     zeroline: false,
-                    dtick: Math.log10(2),
-                    range: [Math.log10(0.1), Math.log10(10)]
+                    dtick: currentScale === 'log' ? Math.log10(2) : undefined
                 },
-                yaxis: {
-                    automargin: true,
-                    gridcolor: 'transparent',
-                    tickfont: { size: 15, weight: 600, color: '#222' }
-                },
-                margin: { l: 220, r: 40, t: 80, b: 100 },
+                yaxis: { automargin: true, gridcolor: 'transparent', tickfont: { size: 15, weight: 600, color: '#222' } },
+                margin: { l: 220, r: 40, t: 80, b: 120 },
                 shapes: shapes,
                 annotations: [
                     ...annotations,
-                    { x: 0.5, y: -0.16, xref: 'x', yref: 'paper', text: `← ${lblL}`, showarrow: false, font: { size: 12, color: '#2471A3', weight: 600 } },
-                    { x: 2.0, y: -0.16, xref: 'x', yref: 'paper', text: `${lblR} →`, showarrow: false, font: { size: 12, color: '#A93226', weight: 600 } }
+                    { x: currentScale === 'log' ? 0.5 : nullV - 0.5, y: -0.18, xref: 'x', yref: 'paper', text: `← ${lblL}`, showarrow: false, font: { size: 12, color: '#2471A3', weight: 600 } },
+                    { x: currentScale === 'log' ? 2.0 : nullV + 0.5, y: -0.18, xref: 'x', yref: 'paper', text: `${lblR} →`, showarrow: false, font: { size: 12, color: '#A93226', weight: 600 } }
                 ],
                 hovermode: 'closest',
                 template: 'plotly_white',
                 font: { family: 'Inter' }
             };
 
-            const config = { responsive: true, displayModeBar: false };
-            Plotly.newPlot('plot-container', [trace], layout, config);
+            Plotly.newPlot('plot-container', [trace], layout, { responsive: true, displayModeBar: false });
             document.getElementById('plot-actions').style.display = 'flex';
         }
 
