@@ -39,8 +39,8 @@
         .hdr-app-name { font-size: 24px; font-weight: 800; letter-spacing: -0.3px; color: var(--primary); }
 
         /* ── LAYOUT ── */
-        main { flex: 1; display: grid; grid-template-columns: 480px 1fr; gap: 0; height: calc(100vh - 93px); overflow: hidden; }
-        @media (max-width: 1200px) {
+        main { flex: 1; display: grid; grid-template-columns: 550px 1fr; gap: 0; height: calc(100vh - 93px); overflow: hidden; }
+        @media (max-width: 1300px) {
             main { grid-template-columns: 1fr; overflow-y: auto; height: auto; }
         }
 
@@ -60,7 +60,7 @@
         input[type="text"], input[type="number"] {
             width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px;
             font-size: 15px; color: #111827; transition: border-color 0.2s, box-shadow 0.2s;
-            height: 44px;
+            height: 46px;
         }
         input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46, 134, 193, 0.1); }
 
@@ -73,16 +73,16 @@
         .btn-primary:hover { background: var(--primary-dark); }
         .btn-outline { background: #fff; border-color: #d1d5db; color: #374151; }
         .btn-outline:hover { background: #f9fafb; border-color: #9ca3af; }
-        .btn-danger { background: #fff; color: #dc2626; border-color: #fca5a5; padding: 6px 10px; }
+        .btn-danger { background: #fff; color: #dc2626; border-color: #fca5a5; padding: 6px 10px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1; }
         .btn-danger:hover { background: #fef2f2; }
 
-        .data-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
         .data-table th { text-align: left; font-size: 11px; color: #9ca3af; padding: 0 10px; font-weight: 600; text-transform: uppercase; }
         .data-table td { padding: 0; vertical-align: middle; }
 
         /* ── PLOT CONTAINER ── */
-        #plot-container { width: 100%; max-width: 900px; height: 500px; border: 1px solid #f3f4f6; border-radius: 8px; }
-        .plot-actions { width: 100%; max-width: 900px; display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
+        #plot-container { width: 100%; max-width: 950px; height: 550px; border: 1px solid #f3f4f6; border-radius: 8px; background: #fff; }
+        .plot-actions { width: 100%; max-width: 950px; display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
 
         /* ── FOOTER ── */
         .app-footer-unified { text-align: center; padding: 16px; font-size: 12px; color: #9ca3af; background: #fff; border-top: 1px solid var(--brd); }
@@ -90,6 +90,10 @@
         /* ── HELPER TEXT ── */
         .help-text { font-size: 11px; color: #9ca3af; margin-top: 4px; }
         .scientific-note { font-size: 12px; color: #4b5563; font-style: italic; border-left: 3px solid #e5e7eb; padding-left: 12px; margin: 12px 0; line-height: 1.4; }
+
+        /* Auto-save indicator */
+        .save-indicator { font-size: 10px; color: #10b981; font-weight: 600; display: flex; align-items: center; gap: 4px; opacity: 0; transition: opacity 0.3s; }
+        .save-indicator.show { opacity: 1; }
     </style>
 </head>
 <body>
@@ -106,15 +110,18 @@
     <main>
         <div class="sidebar">
             <div class="card">
-                <div class="card-title">Personalización del Gráfico</div>
+                <div class="card-title">
+                    Personalización del Gráfico
+                    <span id="save-status" class="save-indicator">✓ Autoguardado</span>
+                </div>
                 <div class="field">
                     <label class="field-label">Título del Gráfico</label>
-                    <input type="text" id="plot-title" placeholder="Ej: Análisis de Riesgo Indirecto" value="Comparación de Medicamentos">
+                    <input type="text" id="plot-title" placeholder="Ej: Análisis de Riesgo Indirecto" value="Comparación de Medicamentos" oninput="scheduleSave()">
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px;">
                     <div class="field">
                         <label class="field-label">Margen Delta (Δ)</label>
-                        <input type="number" id="delta-val" placeholder="Opcional" step="0.01" min="1.01" oninput="updateReciprocal()">
+                        <input type="number" id="delta-val" placeholder="Opcional" step="0.01" min="1.01" oninput="updateReciprocal(); scheduleSave()">
                     </div>
                     <div class="field">
                         <label class="field-label">Inverso (1/Δ)</label>
@@ -123,12 +130,12 @@
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="field">
-                        <label class="field-label">Eje X Izq (Favorece...)</label>
-                        <input type="text" id="label-left" value="Tratamiento" style="height: 38px; font-size: 13px;">
+                        <label class="field-label">Favorece Izquierda (HR < 1)</label>
+                        <input type="text" id="label-left" value="Tratamiento" oninput="scheduleSave()">
                     </div>
                     <div class="field">
-                        <label class="field-label">Eje X Der (Favorece...)</label>
-                        <input type="text" id="label-right" value="Control" style="height: 38px; font-size: 13px;">
+                        <label class="field-label">Favorece Derecha (HR > 1)</label>
+                        <input type="text" id="label-right" value="Control" oninput="scheduleSave()">
                     </div>
                 </div>
             </div>
@@ -136,16 +143,16 @@
             <div class="card">
                 <div class="card-title">
                     Datos de Comparación
-                    <button class="btn btn-outline" style="padding: 4px 10px; font-size: 11px;" onclick="addRow()">+ Añadir</button>
+                    <button class="btn btn-outline" style="padding: 4px 10px; font-size: 11px;" onclick="addRow(); scheduleSave()">+ Añadir Fila</button>
                 </div>
-                <div style="max-height: 400px; overflow-y: auto; padding-right: 4px;">
+                <div style="max-height: 480px; overflow-y: auto; padding-right: 8px;">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="width: 35%;">Medicamento</th>
-                                <th style="width: 18%;">HR</th>
-                                <th style="width: 40%;">IC 95%</th>
-                                <th style="width: 7%;"></th>
+                                <th style="width: 45%;">Medicamento</th>
+                                <th style="width: 15%;">HR</th>
+                                <th style="width: 35%;">IC 95% (Linf - Lsup)</th>
+                                <th style="width: 5%;"></th>
                             </tr>
                         </thead>
                         <tbody id="med-tbody">
@@ -154,19 +161,12 @@
                     </table>
                 </div>
                 
-                <div style="display: flex; gap: 8px; margin-top: 10px;">
-                    <button class="btn btn-outline" style="flex: 1; font-size: 11px; padding: 6px;" onclick="downloadData()">💾 Guardar</button>
-                    <label class="btn btn-outline" style="flex: 1; font-size: 11px; padding: 6px; cursor: pointer;">
-                        📂 Cargar
-                        <input type="file" id="import-file" style="display:none" onchange="importData(this)">
-                    </label>
-                </div>
-
-                <div style="margin-top: 16px;">
-                    <button class="btn btn-primary" style="width: 100%; height: 44px;" onclick="generatePlot()">Actualizar Imagen</button>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary" style="flex: 1; height: 50px; font-size: 16px;" onclick="generatePlot()">Actualizar Imagen</button>
+                    <button class="btn btn-outline" style="width: 50px; height: 50px;" onclick="resetData()" title="Limpiar todo">🗑</button>
                 </div>
             </div>
-            <div class="scientific-note">El diseño minimalista asegura una presentación óptima para publicaciones científicas.</div>
+            <div class="scientific-note">El autoguardado local protege tus datos entre sesiones. La exportación PNG es de alta fidelidad.</div>
         </div>
 
         <div class="content">
@@ -181,11 +181,12 @@
     </main>
 
     <footer class="app-footer-unified">
-        &copy; 2026 YerayFH - de la Mata &middot; PlottyFor® v1.2
+        &copy; 2026 YerayFH - de la Mata &middot; PlottyFor® v1.3
     </footer>
 
     <script>
         let medCount = 0;
+        let saveTimeout = null;
 
         function addRow(name = '', hr = '', lci = '', uci = '') {
             medCount++;
@@ -193,15 +194,15 @@
             const tr = document.createElement('tr');
             tr.id = `row-${medCount}`;
             tr.innerHTML = `
-                <td><input type="text" placeholder="Nombre" value="${name}" class="med-name" style="width: 95%;"></td>
-                <td><input type="number" placeholder="1.0" step="0.01" value="${hr}" class="med-hr" style="width: 90%;"></td>
+                <td><input type="text" placeholder="Fármaco..." value="${name}" class="med-name" oninput="scheduleSave()" style="width: 100%; min-width: 150px;"></td>
+                <td><input type="number" placeholder="1.0" step="0.01" value="${hr}" class="med-hr" oninput="scheduleSave()" style="width: 100%; min-width: 60px;"></td>
                 <td>
-                    <div style="display: flex; gap: 4px; width: 95%;">
-                        <input type="number" placeholder="Linf" step="0.01" value="${lci}" class="med-lci">
-                        <input type="number" placeholder="Lsup" step="0.01" value="${uci}" class="med-uci">
+                    <div style="display: flex; gap: 6px; width: 100%;">
+                        <input type="number" placeholder="Linf" step="0.01" value="${lci}" class="med-lci" oninput="scheduleSave()" style="width: 50%; min-width: 60px;">
+                        <input type="number" placeholder="Lsup" step="0.01" value="${uci}" class="med-uci" oninput="scheduleSave()" style="width: 50%; min-width: 60px;">
                     </div>
                 </td>
-                <td style="text-align: right;"><button class="btn btn-danger" onclick="removeRow(${medCount})">×</button></td>
+                <td style="text-align: right;"><button class="btn btn-danger" onclick="removeRow(${medCount}); scheduleSave()">×</button></td>
             `;
             tbody.appendChild(tr);
         }
@@ -221,6 +222,81 @@
             }
         }
 
+        function scheduleSave() {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveState, 1000);
+        }
+
+        function saveState() {
+            const rows = document.querySelectorAll('#med-tbody tr');
+            const data = [];
+            rows.forEach(row => {
+                data.push({
+                    name: row.querySelector('.med-name').value,
+                    hr: row.querySelector('.med-hr').value,
+                    lci: row.querySelector('.med-lci').value,
+                    uci: row.querySelector('.med-uci').value
+                });
+            });
+            const state = {
+                title: document.getElementById('plot-title').value,
+                delta: document.getElementById('delta-val').value,
+                labelLeft: document.getElementById('label-left').value,
+                labelRight: document.getElementById('label-right').value,
+                data: data
+            };
+            localStorage.setItem('plottyfor_state', JSON.stringify(state));
+            
+            const indicator = document.getElementById('save-status');
+            indicator.classList.add('show');
+            setTimeout(() => indicator.classList.remove('show'), 2000);
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('plottyfor_state');
+            if (saved) {
+                try {
+                    const state = JSON.parse(saved);
+                    document.getElementById('plot-title').value = state.title || '';
+                    document.getElementById('delta-val').value = state.delta || '';
+                    document.getElementById('label-left').value = state.labelLeft || 'Tratamiento';
+                    document.getElementById('label-right').value = state.labelRight || 'Control';
+                    
+                    document.getElementById('med-tbody').innerHTML = '';
+                    if (state.data && state.data.length > 0) {
+                        state.data.forEach(d => addRow(d.name, d.hr, d.lci, d.uci));
+                    } else {
+                        addDefaultRows();
+                    }
+                } catch (e) {
+                    console.error("Error loading state", e);
+                    addDefaultRows();
+                }
+            } else {
+                addDefaultRows();
+            }
+            updateReciprocal();
+            generatePlot();
+        }
+
+        function addDefaultRows() {
+            addRow('Fármaco A vs Control', 0.82, 0.71, 0.95);
+            addRow('Fármaco B vs Control', 1.12, 0.98, 1.28);
+        }
+
+        function resetData() {
+            if (confirm('¿Estás seguro de que quieres borrar todos los datos?')) {
+                document.getElementById('med-tbody').innerHTML = '';
+                document.getElementById('plot-title').value = 'Comparación de Medicamentos';
+                document.getElementById('delta-val').value = '';
+                document.getElementById('label-left').value = 'Tratamiento';
+                document.getElementById('label-right').value = 'Control';
+                updateReciprocal();
+                scheduleSave();
+                addRow();
+            }
+        }
+
         function generatePlot() {
             const rows = document.querySelectorAll('#med-tbody tr');
             const data = [];
@@ -232,7 +308,7 @@
                 if (n && !isNaN(h) && !isNaN(l) && !isNaN(u)) data.push({ n, h, l, u });
             });
 
-            if (data.length === 0) { alert('Introduce datos válidos.'); return; }
+            if (data.length === 0) { return; }
 
             const customTitle = document.getElementById('plot-title').value;
             const deltaVal = parseFloat(document.getElementById('delta-val').value);
@@ -249,16 +325,16 @@
                     symmetric: false,
                     array: plotData.map(d => d.u - d.h),
                     arrayminus: plotData.map(d => d.h - d.l),
-                    color: '#333',
-                    thickness: 1.5,
-                    width: 4
+                    color: '#222',
+                    thickness: 1.8,
+                    width: 5
                 },
                 mode: 'markers',
                 marker: {
                     symbol: 'square',
-                    size: 10,
-                    color: plotData.map(d => d.h < 1 ? '#1F618D' : '#922B21'),
-                    line: { color: 'white', width: 0.8 }
+                    size: 11,
+                    color: plotData.map(d => d.h < 1 ? '#2471A3' : '#A93226'),
+                    line: { color: 'white', width: 1 }
                 },
                 type: 'scatter',
                 name: 'HR',
@@ -266,11 +342,10 @@
                 customdata: plotData.map(d => [d.l, d.u])
             };
 
-            const shapes = [{ type: 'line', x0: 1, x1: 1, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#222', width: 1.5 } }];
+            const shapes = [{ type: 'line', x0: 1, x1: 1, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#111', width: 2 } }];
             const annotations = [
-                // Watermark
                 {
-                    xref: 'paper', yref: 'paper', x: 1, y: -0.22,
+                    xref: 'paper', yref: 'paper', x: 1, y: -0.2,
                     text: 'PlottyFor® - YerayFH',
                     showarrow: false, font: { size: 10, color: '#9ca3af' }, xanchor: 'right'
                 }
@@ -279,41 +354,41 @@
             if (!isNaN(deltaVal)) {
                 const invD = 1 / deltaVal;
                 shapes.push(
-                    { type: 'line', x0: deltaVal, x1: deltaVal, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#bbb', width: 1, dash: 'dash' } },
-                    { type: 'line', x0: invD, x1: invD, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#bbb', width: 1, dash: 'dash' } }
+                    { type: 'line', x0: deltaVal, x1: deltaVal, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#ccc', width: 1.2, dash: 'dash' } },
+                    { type: 'line', x0: invD, x1: invD, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#ccc', width: 1.2, dash: 'dash' } }
                 );
                 annotations.push(
-                    { x: deltaVal, y: plotData.length - 0.2, xref: 'x', yref: 'y', text: 'Δ', showarrow: false, font: { size: 10, color: '#bbb' }, yanchor: 'bottom' },
-                    { x: invD, y: plotData.length - 0.2, xref: 'x', yref: 'y', text: '1/Δ', showarrow: false, font: { size: 10, color: '#bbb' }, yanchor: 'bottom' }
+                    { x: deltaVal, y: plotData.length - 0.2, xref: 'x', yref: 'y', text: 'Δ', showarrow: false, font: { size: 10, color: '#aaa' }, yanchor: 'bottom' },
+                    { x: invD, y: plotData.length - 0.2, xref: 'x', yref: 'y', text: '1/Δ', showarrow: false, font: { size: 10, color: '#aaa' }, yanchor: 'bottom' }
                 );
             }
 
             const layout = {
                 title: {
                     text: customTitle,
-                    font: { family: 'Inter', size: 18, weight: 600, color: '#111' },
-                    pad: { b: 10 }
+                    font: { family: 'Inter', size: 19, weight: 600, color: '#000' },
+                    pad: { b: 15 }
                 },
                 xaxis: {
                     type: 'log',
-                    title: { text: 'Hazard Ratio', font: { size: 12, weight: 500, color: '#666' } },
+                    title: { text: 'Hazard Ratio (HR)', font: { size: 13, weight: 500, color: '#444' } },
                     tickformat: '.2f',
                     gridcolor: '#f3f4f6',
                     zeroline: false,
                     dtick: Math.log10(2),
-                    range: [Math.log10(0.2), Math.log10(5)]
+                    range: [Math.log10(0.1), Math.log10(10)]
                 },
                 yaxis: {
                     automargin: true,
                     gridcolor: 'transparent',
-                    tickfont: { size: 14, weight: 600, color: '#222' } // Larger drug names
+                    tickfont: { size: 15, weight: 600, color: '#222' }
                 },
-                margin: { l: 200, r: 40, t: 70, b: 90 },
+                margin: { l: 220, r: 40, t: 80, b: 100 },
                 shapes: shapes,
                 annotations: [
                     ...annotations,
-                    { x: 0.6, y: -0.15, xref: 'x', yref: 'paper', text: `← ${lblL}`, showarrow: false, font: { size: 11, color: '#1F618D', weight: 500 } },
-                    { x: 1.8, y: -0.15, xref: 'x', yref: 'paper', text: `${lblR} →`, showarrow: false, font: { size: 11, color: '#922B21', weight: 500 } }
+                    { x: 0.5, y: -0.16, xref: 'x', yref: 'paper', text: `← ${lblL}`, showarrow: false, font: { size: 12, color: '#2471A3', weight: 600 } },
+                    { x: 2.0, y: -0.16, xref: 'x', yref: 'paper', text: `${lblR} →`, showarrow: false, font: { size: 12, color: '#A93226', weight: 600 } }
                 ],
                 hovermode: 'closest',
                 template: 'plotly_white',
@@ -321,7 +396,6 @@
             };
 
             const config = { responsive: true, displayModeBar: false };
-
             Plotly.newPlot('plot-container', [trace], layout, config);
             document.getElementById('plot-actions').style.display = 'flex';
         }
@@ -330,63 +404,13 @@
             const container = document.getElementById('plot-container');
             Plotly.downloadImage(container, {
                 format: 'png',
-                width: 1400,
-                height: 800,
-                filename: 'PlottyFor_Export'
+                width: 1600,
+                height: 900,
+                filename: 'PlottyFor_Graph'
             });
         }
 
-        function downloadData() {
-            const rows = document.querySelectorAll('#med-tbody tr');
-            const data = [];
-            rows.forEach(row => {
-                data.push({
-                    name: row.querySelector('.med-name').value,
-                    hr: row.querySelector('.med-hr').value,
-                    lci: row.querySelector('.med-lci').value,
-                    uci: row.querySelector('.med-uci').value
-                });
-            });
-            const delta = document.getElementById('delta-val').value;
-            const title = document.getElementById('plot-title').value;
-            const exportObj = { title, delta, data, labels: { left: document.getElementById('label-left').value, right: document.getElementById('label-right').value } };
-            const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `plottyfor_data.json`;
-            a.click();
-        }
-
-        function importData(input) {
-            const file = input.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const imp = JSON.parse(e.target.result);
-                    if (imp.title) document.getElementById('plot-title').value = imp.title;
-                    if (imp.delta !== undefined) document.getElementById('delta-val').value = imp.delta;
-                    if (imp.labels) {
-                        document.getElementById('label-left').value = imp.labels.left;
-                        document.getElementById('label-right').value = imp.labels.right;
-                    }
-                    if (imp.data) {
-                        document.getElementById('med-tbody').innerHTML = '';
-                        imp.data.forEach(d => addRow(d.name, d.hr, d.lci, d.uci));
-                    }
-                    updateReciprocal();
-                    generatePlot();
-                } catch (err) { alert('Error al cargar.'); }
-            };
-            reader.readAsText(file);
-        }
-
-        window.onload = () => {
-            addRow('Fármaco A vs Control', 0.82, 0.71, 0.95);
-            addRow('Fármaco B vs Control', 1.12, 0.98, 1.28);
-            generatePlot();
-        };
+        window.onload = loadState;
     </script>
 </body>
 </html>
