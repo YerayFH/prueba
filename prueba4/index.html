@@ -48,7 +48,7 @@
             background: var(--bg-light); border-right: 1px solid var(--brd);
             padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;
         }
-        .content { padding: 24px; background: #fff; overflow-y: auto; position: relative; }
+        .content { padding: 24px; background: #fff; overflow-y: auto; position: relative; display: flex; flex-direction: column; align-items: center; }
 
         /* ── COMPONENTS ── */
         .card { background: #fff; border: 1px solid var(--brd); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -56,7 +56,6 @@
         
         .field { margin-bottom: 14px; }
         .field-label { display: block; font-size: 12px; font-weight: 500; color: #4b5563; margin-bottom: 6px; }
-        .input-group { display: flex; gap: 8px; align-items: center; }
         
         input[type="text"], input[type="number"] {
             width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px;
@@ -64,7 +63,6 @@
             height: 44px;
         }
         input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46, 134, 193, 0.1); }
-        input::placeholder { color: #9ca3af; font-size: 13px; }
 
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -81,26 +79,17 @@
         .data-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
         .data-table th { text-align: left; font-size: 11px; color: #9ca3af; padding: 0 10px; font-weight: 600; text-transform: uppercase; }
         .data-table td { padding: 0; vertical-align: middle; }
-        .data-table tr { background: transparent; }
-
-        .row-container { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
 
         /* ── PLOT CONTAINER ── */
-        #plot-container { width: 100%; height: 650px; }
-        .plot-actions { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
+        #plot-container { width: 100%; max-width: 900px; height: 500px; border: 1px solid #f3f4f6; border-radius: 8px; }
+        .plot-actions { width: 100%; max-width: 900px; display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
 
         /* ── FOOTER ── */
         .app-footer-unified { text-align: center; padding: 16px; font-size: 12px; color: #9ca3af; background: #fff; border-top: 1px solid var(--brd); }
 
         /* ── HELPER TEXT ── */
         .help-text { font-size: 11px; color: #9ca3af; margin-top: 4px; }
-        
-        /* ── SCIENTIFIC STYLE OVERRIDES ── */
         .scientific-note { font-size: 12px; color: #4b5563; font-style: italic; border-left: 3px solid #e5e7eb; padding-left: 12px; margin: 12px 0; line-height: 1.4; }
-
-        /* ── NEW CONTROLS ── */
-        .data-actions { display: flex; gap: 8px; margin-top: 10px; }
-        .tag-input { font-size: 12px; padding: 4px 8px; border-radius: 4px; border: 1px solid #d1d5db; width: 120px; }
     </style>
 </head>
 <body>
@@ -117,32 +106,29 @@
     <main>
         <div class="sidebar">
             <div class="card">
-                <div class="card-title">Configuración de No Inferioridad</div>
+                <div class="card-title">Personalización del Gráfico</div>
+                <div class="field">
+                    <label class="field-label">Título del Gráfico</label>
+                    <input type="text" id="plot-title" placeholder="Ej: Análisis de Riesgo Indirecto" value="Comparación de Medicamentos">
+                </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="field">
                         <label class="field-label">Margen Delta (Δ)</label>
-                        <input type="number" id="delta-val" placeholder="Opcional (ej: 1.15)" step="0.01" min="1.01" oninput="updateReciprocal()">
-                        <div class="help-text">Vacío para no mostrar.</div>
+                        <input type="number" id="delta-val" placeholder="Opcional" step="0.01" min="1.01" oninput="updateReciprocal()">
                     </div>
                     <div class="field">
                         <label class="field-label">Inverso (1/Δ)</label>
                         <input type="number" id="inv-delta-val" placeholder="-" readonly style="background: #f3f4f6; color: #6b7280;">
                     </div>
                 </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">
-                    Etiquetas de Eje X
-                </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="field">
-                        <label class="field-label">Lado Izquierdo (HR < 1)</label>
-                        <input type="text" id="label-left" value="Favorece Tratamiento" placeholder="Ej: Favorece A">
+                        <label class="field-label">Eje X Izq (Favorece...)</label>
+                        <input type="text" id="label-left" value="Tratamiento" style="height: 38px; font-size: 13px;">
                     </div>
                     <div class="field">
-                        <label class="field-label">Lado Derecho (HR > 1)</label>
-                        <input type="text" id="label-right" value="Favorece Control" placeholder="Ej: Favorece B">
+                        <label class="field-label">Eje X Der (Favorece...)</label>
+                        <input type="text" id="label-right" value="Control" style="height: 38px; font-size: 13px;">
                     </div>
                 </div>
             </div>
@@ -150,57 +136,52 @@
             <div class="card">
                 <div class="card-title">
                     Datos de Comparación
-                    <button class="btn btn-outline" style="padding: 4px 10px; font-size: 11px;" onclick="addRow()">+ Añadir Fila</button>
+                    <button class="btn btn-outline" style="padding: 4px 10px; font-size: 11px;" onclick="addRow()">+ Añadir</button>
                 </div>
-                <div style="max-height: 450px; overflow-y: auto; padding-right: 4px;">
+                <div style="max-height: 400px; overflow-y: auto; padding-right: 4px;">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th style="width: 35%;">Medicamento</th>
                                 <th style="width: 18%;">HR</th>
-                                <th style="width: 40%;">IC 95% (Linf - Lsup)</th>
+                                <th style="width: 40%;">IC 95%</th>
                                 <th style="width: 7%;"></th>
                             </tr>
                         </thead>
                         <tbody id="med-tbody">
-                            <!-- Rows added dynamically -->
+                            <!-- Dynamically added -->
                         </tbody>
                     </table>
                 </div>
                 
-                <div class="data-actions">
-                    <button class="btn btn-outline" style="flex: 1; font-size: 12px; padding: 6px;" onclick="downloadData()">💾 Guardar Datos</button>
-                    <label class="btn btn-outline" style="flex: 1; font-size: 12px; padding: 6px; cursor: pointer;">
-                        📂 Cargar Datos
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                    <button class="btn btn-outline" style="flex: 1; font-size: 11px; padding: 6px;" onclick="downloadData()">💾 Guardar</button>
+                    <label class="btn btn-outline" style="flex: 1; font-size: 11px; padding: 6px; cursor: pointer;">
+                        📂 Cargar
                         <input type="file" id="import-file" style="display:none" onchange="importData(this)">
                     </label>
                 </div>
 
-                <div style="margin-top: 20px;">
-                    <button class="btn btn-primary" style="width: 100%; height: 48px; font-size: 16px;" onclick="generatePlot()">Actualizar Forest Plot</button>
+                <div style="margin-top: 16px;">
+                    <button class="btn btn-primary" style="width: 100%; height: 44px;" onclick="generatePlot()">Actualizar Imagen</button>
                 </div>
             </div>
-
-            <div class="scientific-note">
-                <strong>Consejo:</strong> Utiliza el margen Δ para definir la frontera de relevancia clínica. Si el IC 95% no cruza Δ, se puede concluir no inferioridad.
-            </div>
+            <div class="scientific-note">El diseño minimalista asegura una presentación óptima para publicaciones científicas.</div>
         </div>
 
         <div class="content">
-            <div id="plot-area">
-                <div id="plot-container"></div>
-                <div class="plot-actions" id="plot-actions" style="display: none;">
-                    <button class="btn btn-outline" onclick="exportPNG()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Descargar como PNG (Alta Resolución)
-                    </button>
-                </div>
+            <div id="plot-container"></div>
+            <div class="plot-actions" id="plot-actions" style="display: none;">
+                <button class="btn btn-outline" onclick="exportPNG()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Descargar PNG de Alta Calidad
+                </button>
             </div>
         </div>
     </main>
 
     <footer class="app-footer-unified">
-        &copy; 2026 YerayFH - de la Mata &middot; PlottyFor® v1.1
+        &copy; 2026 YerayFH - de la Mata &middot; PlottyFor® v1.2
     </footer>
 
     <script>
@@ -215,7 +196,7 @@
                 <td><input type="text" placeholder="Nombre" value="${name}" class="med-name" style="width: 95%;"></td>
                 <td><input type="number" placeholder="1.0" step="0.01" value="${hr}" class="med-hr" style="width: 90%;"></td>
                 <td>
-                    <div style="display: flex; gap: 6px; width: 95%;">
+                    <div style="display: flex; gap: 4px; width: 95%;">
                         <input type="number" placeholder="Linf" step="0.01" value="${lci}" class="med-lci">
                         <input type="number" placeholder="Lsup" step="0.01" value="${uci}" class="med-uci">
                     </div>
@@ -243,126 +224,103 @@
         function generatePlot() {
             const rows = document.querySelectorAll('#med-tbody tr');
             const data = [];
-            
             rows.forEach(row => {
-                const nameInput = row.querySelector('.med-name');
-                const hrInput = row.querySelector('.med-hr');
-                const lciInput = row.querySelector('.med-lci');
-                const uciInput = row.querySelector('.med-uci');
-
-                if (nameInput && hrInput && lciInput && uciInput) {
-                    const name = nameInput.value || 'N/A';
-                    const hr = parseFloat(hrInput.value);
-                    const lci = parseFloat(lciInput.value);
-                    const uci = parseFloat(uciInput.value);
-
-                    if (!isNaN(hr) && !isNaN(lci) && !isNaN(uci)) {
-                        data.push({ name, hr, lci, uci });
-                    }
-                }
+                const n = row.querySelector('.med-name').value;
+                const h = parseFloat(row.querySelector('.med-hr').value);
+                const l = parseFloat(row.querySelector('.med-lci').value);
+                const u = parseFloat(row.querySelector('.med-uci').value);
+                if (n && !isNaN(h) && !isNaN(l) && !isNaN(u)) data.push({ n, h, l, u });
             });
 
-            if (data.length === 0) {
-                alert('Introduce datos válidos para al menos un medicamento.');
-                return;
-            }
+            if (data.length === 0) { alert('Introduce datos válidos.'); return; }
 
+            const customTitle = document.getElementById('plot-title').value;
             const deltaVal = parseFloat(document.getElementById('delta-val').value);
-            const labelLeft = document.getElementById('label-left').value;
-            const labelRight = document.getElementById('label-right').value;
+            const lblL = document.getElementById('label-left').value;
+            const lblR = document.getElementById('label-right').value;
 
-            // Prepare Plotly data
             const plotData = [...data].reverse();
             
             const trace = {
-                x: plotData.map(d => d.hr),
-                y: plotData.map(d => d.name),
+                x: plotData.map(d => d.h),
+                y: plotData.map(d => d.n),
                 error_x: {
                     type: 'data',
                     symmetric: false,
-                    array: plotData.map(d => d.uci - d.hr),
-                    arrayminus: plotData.map(d => d.hr - d.lci),
-                    color: '#222',
-                    thickness: 2,
-                    width: 6
+                    array: plotData.map(d => d.u - d.h),
+                    arrayminus: plotData.map(d => d.h - d.l),
+                    color: '#333',
+                    thickness: 1.5,
+                    width: 4
                 },
                 mode: 'markers',
                 marker: {
                     symbol: 'square',
-                    size: 12,
-                    color: plotData.map(d => d.hr < 1 ? '#2E86C1' : '#8B0000'), // NEJM Blue/Red based on side
-                    line: { color: 'white', width: 1 }
+                    size: 10,
+                    color: plotData.map(d => d.h < 1 ? '#1F618D' : '#922B21'),
+                    line: { color: 'white', width: 0.8 }
                 },
                 type: 'scatter',
-                name: 'Hazard Ratio',
+                name: 'HR',
                 hovertemplate: '<b>%{y}</b><br>HR: %{x:.2f}<br>IC: [%{customdata[0]:.2f}, %{customdata[1]:.2f}]<extra></extra>',
-                customdata: plotData.map(d => [d.lci, d.uci])
+                customdata: plotData.map(d => [d.l, d.u])
             };
 
-            const shapes = [
-                // Null effect line
+            const shapes = [{ type: 'line', x0: 1, x1: 1, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#222', width: 1.5 } }];
+            const annotations = [
+                // Watermark
                 {
-                    type: 'line',
-                    x0: 1, x1: 1,
-                    y0: -0.5, y1: plotData.length - 0.5,
-                    line: { color: '#000', width: 2 }
+                    xref: 'paper', yref: 'paper', x: 1, y: -0.22,
+                    text: 'PlottyFor® - YerayFH',
+                    showarrow: false, font: { size: 10, color: '#9ca3af' }, xanchor: 'right'
                 }
             ];
 
-            const annotations = [
-                { x: 1, y: plotData.length - 0.3, xref: 'x', yref: 'y', text: 'Nulo', showarrow: false, font: { size: 11, color: '#666', weight: 600 }, yanchor: 'bottom' }
-            ];
-
             if (!isNaN(deltaVal)) {
-                const invDelta = 1 / deltaVal;
+                const invD = 1 / deltaVal;
                 shapes.push(
-                    { type: 'line', x0: deltaVal, x1: deltaVal, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#999', width: 1.5, dash: 'dash' } },
-                    { type: 'line', x0: invDelta, x1: invDelta, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#999', width: 1.5, dash: 'dash' } }
+                    { type: 'line', x0: deltaVal, x1: deltaVal, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#bbb', width: 1, dash: 'dash' } },
+                    { type: 'line', x0: invD, x1: invD, y0: -0.5, y1: plotData.length - 0.5, line: { color: '#bbb', width: 1, dash: 'dash' } }
                 );
                 annotations.push(
-                    { x: deltaVal, y: plotData.length - 0.3, xref: 'x', yref: 'y', text: 'Δ', showarrow: false, font: { size: 11, color: '#999' }, yanchor: 'bottom' },
-                    { x: invDelta, y: plotData.length - 0.3, xref: 'x', yref: 'y', text: '1/Δ', showarrow: false, font: { size: 11, color: '#999' }, yanchor: 'bottom' }
+                    { x: deltaVal, y: plotData.length - 0.2, xref: 'x', yref: 'y', text: 'Δ', showarrow: false, font: { size: 10, color: '#bbb' }, yanchor: 'bottom' },
+                    { x: invD, y: plotData.length - 0.2, xref: 'x', yref: 'y', text: '1/Δ', showarrow: false, font: { size: 10, color: '#bbb' }, yanchor: 'bottom' }
                 );
             }
 
             const layout = {
                 title: {
-                    text: 'Forest Plot: Comparación de Riesgos Relativos',
-                    font: { family: 'Inter', size: 22, weight: 700, color: '#003366' },
-                    pad: { b: 20 }
+                    text: customTitle,
+                    font: { family: 'Inter', size: 18, weight: 600, color: '#111' },
+                    pad: { b: 10 }
                 },
                 xaxis: {
                     type: 'log',
-                    title: { text: 'Hazard Ratio (HR)', font: { size: 14, weight: 600 } },
+                    title: { text: 'Hazard Ratio', font: { size: 12, weight: 500, color: '#666' } },
                     tickformat: '.2f',
-                    gridcolor: '#eee',
+                    gridcolor: '#f3f4f6',
                     zeroline: false,
                     dtick: Math.log10(2),
-                    range: [Math.log10(0.1), Math.log10(10)] // Wider default range
+                    range: [Math.log10(0.2), Math.log10(5)]
                 },
                 yaxis: {
                     automargin: true,
-                    gridcolor: '#f9fafb',
-                    tickfont: { size: 13, weight: 500 }
+                    gridcolor: 'transparent',
+                    tickfont: { size: 14, weight: 600, color: '#222' } // Larger drug names
                 },
-                margin: { l: 200, r: 50, t: 100, b: 120 },
+                margin: { l: 200, r: 40, t: 70, b: 90 },
                 shapes: shapes,
                 annotations: [
                     ...annotations,
-                    // Labels for "Favors"
-                    { x: 0.5, y: -0.15, xref: 'x', yref: 'paper', text: `← ${labelLeft}`, showarrow: false, font: { size: 12, color: '#2E86C1', weight: 600 } },
-                    { x: 2.0, y: -0.15, xref: 'x', yref: 'paper', text: `${labelRight} →`, showarrow: false, font: { size: 12, color: '#8B0000', weight: 600 } }
+                    { x: 0.6, y: -0.15, xref: 'x', yref: 'paper', text: `← ${lblL}`, showarrow: false, font: { size: 11, color: '#1F618D', weight: 500 } },
+                    { x: 1.8, y: -0.15, xref: 'x', yref: 'paper', text: `${lblR} →`, showarrow: false, font: { size: 11, color: '#922B21', weight: 500 } }
                 ],
                 hovermode: 'closest',
                 template: 'plotly_white',
-                font: { family: 'Inter', color: '#333' }
+                font: { family: 'Inter' }
             };
 
-            const config = {
-                responsive: true,
-                displayModeBar: false,
-                toImageButtonOptions: { format: 'png', filename: 'PlottyFor_Graph', height: 800, width: 1200, scale: 2 }
-            };
+            const config = { responsive: true, displayModeBar: false };
 
             Plotly.newPlot('plot-container', [trace], layout, config);
             document.getElementById('plot-actions').style.display = 'flex';
@@ -372,9 +330,9 @@
             const container = document.getElementById('plot-container');
             Plotly.downloadImage(container, {
                 format: 'png',
-                width: 1600,
-                height: 1000,
-                filename: 'Forest_Plot_PlottyFor_HD'
+                width: 1400,
+                height: 800,
+                filename: 'PlottyFor_Export'
             });
         }
 
@@ -390,13 +348,13 @@
                 });
             });
             const delta = document.getElementById('delta-val').value;
-            const exportObj = { delta, data, labels: { left: document.getElementById('label-left').value, right: document.getElementById('label-right').value } };
-            
+            const title = document.getElementById('plot-title').value;
+            const exportObj = { title, delta, data, labels: { left: document.getElementById('label-left').value, right: document.getElementById('label-right').value } };
             const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `plottyfor_data_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `plottyfor_data.json`;
             a.click();
         }
 
@@ -406,32 +364,27 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    const imported = JSON.parse(e.target.result);
-                    if (imported.delta !== undefined) document.getElementById('delta-val').value = imported.delta;
-                    if (imported.labels) {
-                        document.getElementById('label-left').value = imported.labels.left;
-                        document.getElementById('label-right').value = imported.labels.right;
+                    const imp = JSON.parse(e.target.result);
+                    if (imp.title) document.getElementById('plot-title').value = imp.title;
+                    if (imp.delta !== undefined) document.getElementById('delta-val').value = imp.delta;
+                    if (imp.labels) {
+                        document.getElementById('label-left').value = imp.labels.left;
+                        document.getElementById('label-right').value = imp.labels.right;
                     }
-                    if (imported.data) {
+                    if (imp.data) {
                         document.getElementById('med-tbody').innerHTML = '';
-                        imported.data.forEach(d => addRow(d.name, d.hr, d.lci, d.uci));
+                        imp.data.forEach(d => addRow(d.name, d.hr, d.lci, d.uci));
                     }
                     updateReciprocal();
                     generatePlot();
-                } catch (err) {
-                    alert('Error al cargar el archivo. Asegúrate de que sea un JSON válido de PlottyFor.');
-                }
+                } catch (err) { alert('Error al cargar.'); }
             };
             reader.readAsText(file);
         }
 
-        // Initialize with examples
         window.onload = () => {
-            document.getElementById('delta-val').value = "1.15"; // Initial example
-            addRow('Tratamiento A vs Placebo', 0.85, 0.72, 0.98);
-            addRow('Tratamiento B vs Placebo', 1.05, 0.91, 1.22);
-            addRow('Tratamiento C vs Placebo', 0.92, 0.81, 1.05);
-            updateReciprocal();
+            addRow('Fármaco A vs Control', 0.82, 0.71, 0.95);
+            addRow('Fármaco B vs Control', 1.12, 0.98, 1.28);
             generatePlot();
         };
     </script>
